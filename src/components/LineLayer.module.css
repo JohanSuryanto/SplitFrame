@@ -1,0 +1,63 @@
+.layer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: visible;
+  z-index: 2;
+}
+
+.gap {
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.outline {
+  fill: none;
+  stroke: color-mix(in srgb, var(--text) 18%, transparent);
+  stroke-width: 1.5;
+  stroke-dasharray: 4 3;
+  vector-effect: non-scaling-stroke;
+}
+
+.selected {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* Wide invisible stroke that makes freehand lines easy to hit. */
+.hit {
+  --hit: 12px;
+  fill: none;
+  stroke: transparent;
+  stroke-width: var(--hit);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  pointer-events: stroke;
+  cursor: pointer;
+}
+
+.hit:focus-visible {
+  outline: none;
+  stroke: color-mix(in srgb, var(--focus) 45%, transparent);
+}
+
+.focusRing {
+  fill: none;
+  stroke: var(--focus);
+  stroke-width: 3;
+  stroke-linejoin: round;
+}
+
+.hit:hover {
+  stroke: color-mix(in srgb, var(--accent) 25%, transparent);
+}
+
+@media (pointer: coarse) {
+  .hit {
+    --hit: 24px;
+  }
+}

@@ -1,0 +1,114 @@
+.container {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* Keep room for the status pill on top and for the dock (plus an open sheet) below. */
+  padding: 44px var(--sheet-w) calc(var(--dock-space) + var(--sheet-h)) 0;
+  background: var(--canvas-backdrop);
+  overflow: hidden;
+  transition:
+    padding-bottom 0.18s ease-out,
+    padding-right 0.18s ease-out;
+}
+
+@media (max-width: 767px) {
+  .container {
+    padding-top: 40px;
+    /* On phones the sheet already sits behind the dock. */
+    padding-bottom: max(var(--dock-space), var(--sheet-h));
+  }
+}
+
+.containerDrawing {
+  touch-action: none;
+  cursor: crosshair;
+}
+
+.status {
+  position: absolute;
+  top: 8px;
+  left: 0;
+  right: var(--sheet-w);
+  display: flex;
+  justify-content: center;
+  pointer-events: none;
+  padding: 0 var(--space-3);
+}
+
+.pill {
+  pointer-events: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  height: 32px;
+  padding: 0 4px 0 12px;
+  border-radius: 999px;
+  background: var(--text);
+  color: var(--canvas-backdrop);
+  font-size: 12px;
+  font-weight: 500;
+  box-shadow: var(--shadow-lg);
+}
+
+.dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 35%, transparent);
+}
+
+.done {
+  height: 24px;
+  padding: 0 10px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--canvas-backdrop);
+  color: var(--text);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.hint {
+  margin: 0;
+  padding-top: 6px;
+  font-size: 12px;
+  color: var(--text-muted);
+  text-align: center;
+}
+
+.surface {
+  position: relative;
+  flex: none;
+  box-shadow: 0 1px 2px rgb(0 0 0 / 0.06), 0 8px 28px rgb(0 0 0 / 0.08);
+  /* Pinch, pan and drawing are ours: the page never scrolls or zooms from the canvas (FR-039). */
+  touch-action: none;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.surface.drawing,
+.surface.drawing [data-cell-id] {
+  cursor: crosshair;
+}
+
+.swapGhost {
+  position: fixed;
+  z-index: 100;
+  width: 72px;
+  height: 72px;
+  margin: -36px 0 0 -36px;
+  object-fit: cover;
+  border-radius: 10px;
+  border: 2px solid #fff;
+  box-shadow: 0 8px 24px rgb(0 0 0 / 0.35);
+  pointer-events: none;
+  opacity: 0.9;
+}

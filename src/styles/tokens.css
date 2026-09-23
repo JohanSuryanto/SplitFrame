@@ -1,0 +1,92 @@
+:root {
+  /* Quiet, near-monochrome palette: the photos are the color. */
+  --surface: #ffffff;
+  --panel: #ffffff;
+  --canvas-backdrop: #f2f2f0;
+  --text: #17171a;
+  --text-muted: #6b6b73;
+  --text-faint: #b8b8bf;
+  --hover: rgb(23 23 26 / 0.06);
+  --border: #e4e4e2;
+  --border-strong: #c9c9c6;
+  --accent: #3d5afe;
+  --accent-contrast: #ffffff;
+  --danger: #e5484d;
+  --focus: #3d5afe;
+  --shadow-lg: 0 10px 32px rgb(20 20 30 / 0.14), 0 1px 3px rgb(20 20 30 / 0.08);
+
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+
+  --radius: 12px;
+  --font: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+
+  /* Room kept free for the floating dock, and the height of an open sheet (set by Sheet.tsx). */
+  --dock-space: 92px;
+  --sheet-h: 0px;
+  --sheet-w: 0px;
+
+  color-scheme: light dark;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --surface: #1c1c20;
+    --panel: #1f1f23;
+    --canvas-backdrop: #111113;
+    --text: #f1f1f3;
+    --text-muted: #a0a0aa;
+    --text-faint: #55555d;
+    --hover: rgb(255 255 255 / 0.07);
+    --border: #2d2d33;
+    --border-strong: #44444c;
+    --accent: #8095ff;
+    --accent-contrast: #0b0b0e;
+    --danger: #ff6b6f;
+    --focus: #8095ff;
+    --shadow-lg: 0 10px 32px rgb(0 0 0 / 0.5), 0 1px 3px rgb(0 0 0 / 0.4);
+  }
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--canvas-backdrop);
+  color: var(--text);
+  font-family: var(--font);
+  font-size: 14px;
+  -webkit-font-smoothing: antialiased;
+  overscroll-behavior: none;
+}
+
+button,
+input,
+select {
+  font: inherit;
+  color: inherit;
+  /* No double-tap zoom on controls (T069). */
+  touch-action: manipulation;
+}
+
+:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}

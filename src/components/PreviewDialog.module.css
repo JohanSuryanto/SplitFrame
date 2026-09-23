@@ -1,0 +1,60 @@
+.dialog {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  max-width: none;
+  max-height: none;
+  overflow: visible;
+}
+
+.dialog::backdrop {
+  background: rgb(10 10 14 / 0.82);
+}
+
+.body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.canvas {
+  display: block;
+  box-shadow: 0 12px 48px rgb(0 0 0 / 0.5);
+}
+
+.bar {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.size {
+  color: #d6d6de;
+  font-size: 12px;
+  margin-right: var(--space-2);
+}
+
+.primary,
+.secondary {
+  min-height: 40px;
+  padding: 0 var(--space-4);
+  border-radius: 8px;
+  border: 0;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.primary {
+  background: var(--accent);
+  color: var(--accent-contrast);
+}
+
+.primary:disabled {
+  opacity: 0.6;
+}
+
+.secondary {
+  background: rgb(255 255 255 / 0.14);
+  color: #fff;
+}
