@@ -43,7 +43,8 @@ export type DocAction =
   | { type: 'resizeDivider'; splitId: string; coord: number }
   | { type: 'removeDivider'; splitId: string }
   | { type: 'setStyle'; patch: Partial<Style> }
-  | { type: 'clearLayout' };
+  | { type: 'clearLayout' }
+  | { type: 'newCollage' };
 
 export function initialDoc(): Doc {
   return {
@@ -63,6 +64,11 @@ export function isValidCustomSize(width: number, height: number): boolean {
 /** What removing a divider would do, so the caller can report it in a toast. */
 export function removeDividerWithReport(doc: Doc, splitId: string): RemoveResult {
   return removeDivider(doc.layout, splitId);
+}
+
+/** True when there is something to lose: any photo or any line. */
+export function hasWork(doc: Doc): boolean {
+  return doc.layout.type !== 'cell' || doc.layout.image !== undefined;
 }
 
 export function docReducer(doc: Doc, action: DocAction): Doc {
@@ -130,6 +136,9 @@ export function docReducer(doc: Doc, action: DocAction): Doc {
       const same = (Object.keys(next) as (keyof Style)[]).every((k) => next[k] === doc.style[k]);
       return same ? doc : { ...doc, style: next };
     }
+    case 'newCollage':
+      // Start again: one empty cell; the canvas shape and style are kept for the next collage.
+      return hasWork(doc) ? { ...doc, layout: singleCell() } : doc;
     case 'clearLayout':
       return doc.layout.type === 'cell' ? doc : { ...doc, layout: clear(doc.layout) };
   }

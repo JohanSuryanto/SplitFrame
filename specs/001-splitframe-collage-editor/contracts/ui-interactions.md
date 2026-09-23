@@ -35,7 +35,7 @@ SplitFrame's only external interfaces are what the user can do with the app and 
 
 ## Screen layout (FR-038, UI refresh 2026-09-24)
 
-- **Top bar**: SplitFrame wordmark · Undo · Redo · Preview · Export. On phones the Preview and Export buttons are icon-only (with accessible names).
+- **Top bar**: SplitFrame wordmark · New collage (disabled when there's nothing to clear; asks "Start a new collage?" when there are photos or lines) · Undo · Redo · Preview · Export. With unsaved work, reloading or closing the tab shows the browser's leave-page warning. On phones the Preview and Export buttons are icon-only (with accessible names).
 - **Dock** (floating, bottom center, thumb reach): **Layout** (opens a panel with canvas shape chips, Custom W×H, grid presets and Clear all lines) · **Draw** (toggles Draw mode) · **Style** (gap, corners, border, color swatches plus a custom color).
 - **Export** (from the top bar) opens a panel: PNG/JPG, JPG quality, Download, output size.
 - **Panels**: on wide screens (≥ 1024 px) a floating card on the right; below that, a bottom sheet with a grab handle. Escape, ×, the handle (tap or swipe down) or a press outside closes them. The canvas shrinks to stay fully visible.

@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
+import { ConfirmDialog } from './components/ConfirmDialog';
 import { Dock, type PanelName } from './components/Dock';
 import { Editor } from './components/Editor';
 import { ExportPanel } from './components/ExportPanel';
@@ -8,7 +9,7 @@ import { Sheet } from './components/Sheet';
 import { StylePanel } from './components/StylePanel';
 import { Toasts } from './components/Toasts';
 import { TopBar } from './components/TopBar';
-import { docReducer, initialDoc } from './state/docReducer';
+import { docReducer, hasWork, initialDoc } from './state/docReducer';
 import { releaseUnreferenced } from './state/imageStore';
 import { useHistory } from './state/useHistory';
 import { useUiState } from './state/uiState';
@@ -71,6 +72,29 @@ export default function App() {
   };
 
   const drawing = ui.ui.mode === 'draw';
+  const dirty = hasWork(history.doc);
+
+  // Start again (keeps canvas shape and style). Asks first, and can still be undone.
+  const [confirmNew, setConfirmNew] = useState(false);
+  const startNew = () => {
+    setConfirmNew(false);
+    setPanel(null);
+    ui.setMode('arrange');
+    ui.selectDivider(undefined);
+    history.commit({ type: 'newCollage' });
+    ui.pushToast('Started a new collage', { label: 'Undo', run: history.undo });
+  };
+
+  // Refreshing or closing the tab would lose everything: let the browser ask first.
+  useEffect(() => {
+    if (!dirty) return;
+    const onBeforeUnload = (e: BeforeUnloadEvent) => {
+      e.preventDefault();
+      e.returnValue = '';
+    };
+    window.addEventListener('beforeunload', onBeforeUnload);
+    return () => window.removeEventListener('beforeunload', onBeforeUnload);
+  }, [dirty]);
 
   return (
     <div className={styles.app}>
@@ -82,6 +106,8 @@ export default function App() {
         onPreview={openPreview}
         exportOpen={panel === 'export'}
         onToggleExport={() => togglePanel('export')}
+        canStartNew={dirty}
+        onNew={() => (dirty ? setConfirmNew(true) : undefined)}
       />
       <main className={styles.main}>
         <Editor
@@ -130,6 +156,15 @@ export default function App() {
           exportSettings={ui.ui.exportSettings}
           onClose={() => ui.setPreviewOpen(false)}
           pushToast={ui.pushToast}
+        />
+      )}
+      {confirmNew && (
+        <ConfirmDialog
+          title="Start a new collage?"
+          message="Your photos and lines will be cleared. The canvas size and style stay the same, and you can undo this."
+          confirmLabel="Start new"
+          onConfirm={startNew}
+          onCancel={() => setConfirmNew(false)}
         />
       )}
       <Toasts toasts={ui.ui.toasts} onDismiss={ui.dismissToast} />

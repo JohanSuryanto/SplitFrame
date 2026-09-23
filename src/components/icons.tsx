@@ -75,6 +75,13 @@ export const DownloadIcon = () => (
   </Icon>
 );
 
+export const NewIcon = () => (
+  <Icon>
+    <path d="M16.5 10a6.5 6.5 0 1 1-2-4.7" />
+    <path d="M16.5 3.5v3h-3" />
+  </Icon>
+);
+
 export const CloseIcon = () => (
   <Icon>
     <path d="m5 5 10 10M15 5 5 15" />
