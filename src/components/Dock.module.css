@@ -1,0 +1,54 @@
+.dock {
+  position: fixed;
+  z-index: 40;
+  /* Centered under the canvas, also when a side panel is open. */
+  left: calc(50% - var(--sheet-w) / 2);
+  bottom: calc(16px + env(safe-area-inset-bottom));
+  transition: left 0.18s ease-out;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 4px;
+  padding: 6px;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  box-shadow: var(--shadow-lg);
+}
+
+.item {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  min-width: 72px;
+  height: 52px;
+  padding: 0 14px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.item:hover {
+  color: var(--text);
+  background: var(--hover);
+}
+
+.item[data-active] {
+  color: var(--canvas-backdrop);
+  background: var(--text);
+}
+
+@media (max-width: 767px) {
+  .dock {
+    bottom: calc(12px + env(safe-area-inset-bottom));
+  }
+
+  .item {
+    min-width: 84px;
+  }
+}

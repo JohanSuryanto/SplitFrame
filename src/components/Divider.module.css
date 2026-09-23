@@ -1,0 +1,87 @@
+.hit {
+  --hit: 12px;
+  position: absolute;
+  z-index: 4;
+  touch-action: none;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.horizontal {
+  height: var(--hit);
+  margin-top: calc(var(--hit) / -2);
+  cursor: row-resize;
+}
+
+.vertical {
+  width: var(--hit);
+  margin-left: calc(var(--hit) / -2);
+  cursor: col-resize;
+}
+
+.line {
+  display: block;
+  background: var(--accent);
+  opacity: 0;
+  transition: opacity 0.12s;
+}
+
+.horizontal .line {
+  width: 100%;
+  height: 2px;
+}
+
+.vertical .line {
+  width: 2px;
+  height: 100%;
+}
+
+.hit:hover .line,
+.hit:focus-visible .line,
+.selected .line {
+  opacity: 1;
+}
+
+.hit:focus-visible {
+  outline: none;
+}
+
+.hit:focus-visible .line {
+  box-shadow: 0 0 0 2px var(--focus);
+}
+
+.remove {
+  position: absolute;
+  z-index: 5;
+  width: 28px;
+  height: 28px;
+  margin: -14px 0 0 -14px;
+  border: 2px solid #fff;
+  border-radius: 50%;
+  background: var(--danger);
+  color: #fff;
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgb(0 0 0 / 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+
+@media (pointer: coarse) {
+  .hit {
+    --hit: 24px;
+  }
+
+  .remove {
+    width: 36px;
+    height: 36px;
+    margin: -18px 0 0 -18px;
+  }
+}
