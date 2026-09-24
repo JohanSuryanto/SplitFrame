@@ -2,14 +2,16 @@ import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import type { Doc } from '../model/types';
 import { ExportError, exportCollage } from '../render/exportCanvas';
 import { renderCollage } from '../render/renderCollage';
-import type { ExportSettings } from '../state/uiState';
+import type { ExportSettings, Toast } from '../state/uiState';
+import { useShare } from '../state/useShare';
+import { ShareIcon } from './icons';
 import styles from './PreviewDialog.module.css';
 
 interface PreviewDialogProps {
   doc: Doc;
   exportSettings: ExportSettings;
   onClose: () => void;
-  pushToast: (message: string) => void;
+  pushToast: (message: string, action?: Toast['action']) => void;
 }
 
 const BAR = 64;
@@ -23,13 +25,14 @@ function fit(canvas: { width: number; height: number }) {
 
 /**
  * The finished collage without any editing controls, drawn by the export renderer so it matches
- * the downloaded file (FR-041 to FR-043).
+ * the downloaded file (FR-041 to FR-043). Share is offered next to Export (FR-108).
  */
 export function PreviewDialog({ doc, exportSettings, onClose, pushToast }: PreviewDialogProps) {
   const dialogRef = useRef<HTMLDialogElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [display, setDisplay] = useState(() => fit(doc.canvas));
   const [busy, setBusy] = useState(false);
+  const sharing = useShare({ doc, settings: exportSettings, pushToast, prerender: true });
 
   useEffect(() => {
     const d = dialogRef.current;
@@ -85,7 +88,20 @@ export function PreviewDialog({ doc, exportSettings, onClose, pushToast }: Previ
           <button type="button" className={styles.secondary} onClick={onClose}>
             Close
           </button>
-          <button type="button" className={styles.primary} onClick={download} disabled={busy} aria-busy={busy}>
+          {sharing.supported && (
+            <button
+              type="button"
+              className={styles.share}
+              onClick={sharing.share}
+              disabled={sharing.busy || busy}
+              aria-busy={sharing.busy}
+              aria-label="Share to Story or other apps"
+            >
+              <ShareIcon />
+              {sharing.busy ? 'Preparing…' : 'Share'}
+            </button>
+          )}
+          <button type="button" className={styles.primary} onClick={download} disabled={busy || sharing.busy} aria-busy={busy}>
             {busy ? 'Exporting…' : 'Export'}
           </button>
         </div>
