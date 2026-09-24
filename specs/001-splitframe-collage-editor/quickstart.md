@@ -12,7 +12,7 @@ This guide explains how to run the app and how to check that each user story wor
 
 ```bash
 npm install
-npm run dev          # Vite dev server → http://localhost:5173
+npm run dev          # Vite dev server → http://localhost:5175
 npm run dev -- --host  # to open it from a phone on the LAN
 npm test             # Vitest unit tests (run once)
 npm run test:watch   # Vitest watch mode
