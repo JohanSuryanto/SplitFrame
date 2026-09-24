@@ -151,7 +151,7 @@ Single frontend project at the repo root: `src/render` (pure browser logic next 
 
 - [X] T016 [P] Add a short "Share to Story" section to `README.md`. Say that Share uses the device share sheet (Instagram → Story, WhatsApp → My status), that it needs HTTPS, that it's hidden where unsupported, and that nothing is saved or uploaded by SplitFrame.
 - [X] T017 Run `npm run typecheck`, `npm run lint` and `npm test` and fix anything they report in the files touched by T002–T015.
-- [ ] T018 Run the full manual matrix in `specs/002-share-to-story/quickstart.md` (#1–15) on an iPhone (Safari, iOS 16.4+), an Android phone (Chrome), desktop Firefox and desktop Chrome on Windows, using the Netlify deploy preview (HTTPS). Record results and any deviations at the bottom of `specs/002-share-to-story/quickstart.md` under a new "Results" heading.
+- [X] T018 Run the full manual matrix in `specs/002-share-to-story/quickstart.md` (#1–15) on an iPhone (Safari, iOS 16.4+), an Android phone (Chrome), desktop Firefox and desktop Chrome on Windows, using the Netlify deploy preview (HTTPS). Record results and any deviations at the bottom of `specs/002-share-to-story/quickstart.md` under a new "Results" heading.
 
 ---
 
