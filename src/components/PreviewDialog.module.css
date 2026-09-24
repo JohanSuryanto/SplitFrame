@@ -36,7 +36,8 @@
 }
 
 .primary,
-.secondary {
+.secondary,
+.share {
   min-height: 40px;
   padding: 0 var(--space-4);
   border-radius: 8px;
@@ -50,11 +51,32 @@
   color: var(--accent-contrast);
 }
 
-.primary:disabled {
+.primary:disabled,
+.share:disabled {
   opacity: 0.6;
 }
 
-.secondary {
+.secondary,
+.share {
   background: rgb(255 255 255 / 0.14);
   color: #fff;
+}
+
+.share {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* On phones Share is the main action, since that is where Stories are posted (FR-109). */
+@media (max-width: 767px) {
+  .share {
+    background: var(--accent);
+    color: var(--accent-contrast);
+  }
+
+  .share ~ .primary {
+    background: rgb(255 255 255 / 0.14);
+    color: #fff;
+  }
 }

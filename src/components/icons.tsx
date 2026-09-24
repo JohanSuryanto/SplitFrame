@@ -75,6 +75,12 @@ export const DownloadIcon = () => (
   </Icon>
 );
 
+export const ShareIcon = () => (
+  <Icon>
+    <path d="M10 12.5V3M6.5 6.5 10 3l3.5 3.5M7 9.5H5.5A1.5 1.5 0 0 0 4 11v4.5A1.5 1.5 0 0 0 5.5 17h9a1.5 1.5 0 0 0 1.5-1.5V11a1.5 1.5 0 0 0-1.5-1.5H13" />
+  </Icon>
+);
+
 export const NewIcon = () => (
   <Icon>
     <path d="M16.5 10a6.5 6.5 0 1 1-2-4.7" />

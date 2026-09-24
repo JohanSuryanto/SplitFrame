@@ -1,20 +1,23 @@
 import { useState } from 'react';
 import type { Doc } from '../model/types';
 import { ExportError, exportCollage } from '../render/exportCanvas';
-import type { ExportSettings } from '../state/uiState';
-import { DownloadIcon } from './icons';
+import type { ExportSettings, Toast } from '../state/uiState';
+import { isStoryShape } from '../render/share';
+import { useShare } from '../state/useShare';
+import { DownloadIcon, ShareIcon } from './icons';
 import styles from './Panel.module.css';
 
 interface ExportPanelProps {
   doc: Doc;
   settings: ExportSettings;
   onChange: (patch: Partial<ExportSettings>) => void;
-  pushToast: (message: string) => void;
+  pushToast: (message: string, action?: Toast['action']) => void;
 }
 
-/** Format (PNG/JPG), JPG quality and Download (FR-031 to FR-035). */
+/** Format (PNG/JPG), JPG quality, Share and Download (FR-031 to FR-035, FR-108 to FR-111). */
 export function ExportPanel({ doc, settings, onChange, pushToast }: ExportPanelProps) {
   const [busy, setBusy] = useState(false);
+  const sharing = useShare({ doc, settings, pushToast });
 
   const download = async () => {
     setBusy(true);
@@ -59,12 +62,28 @@ export function ExportPanel({ doc, settings, onChange, pushToast }: ExportPanelP
           </label>
         </div>
       )}
-      <button type="button" className={styles.primary} onClick={download} disabled={busy} aria-busy={busy}>
-        <DownloadIcon />
-        {busy ? 'Exporting…' : 'Download'}
-      </button>
+      <div className={styles.actions}>
+        {sharing.supported && (
+          <button
+            type="button"
+            className={styles.shareButton}
+            onClick={sharing.share}
+            disabled={sharing.busy || busy}
+            aria-busy={sharing.busy}
+            aria-label="Share to Story or other apps"
+          >
+            <ShareIcon />
+            {sharing.busy ? 'Preparing…' : 'Share'}
+          </button>
+        )}
+        <button type="button" className={styles.primary} onClick={download} disabled={busy || sharing.busy} aria-busy={busy}>
+          <DownloadIcon />
+          {busy ? 'Exporting…' : 'Download'}
+        </button>
+      </div>
+      {sharing.supported && !isStoryShape(doc.canvas) && <p className={styles.meta}>Stories are 9:16 — other shapes get borders.</p>}
       <p className={styles.meta}>
-        {doc.canvas.width} × {doc.canvas.height} px · saved to your device only
+        {doc.canvas.width} × {doc.canvas.height} px · stays on your device until you share it
       </p>
     </>
   );

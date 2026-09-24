@@ -1,4 +1,4 @@
-// Full-resolution export and download, entirely on the device (FR-031 to FR-035).
+// Full-resolution export and download, entirely on the device (FR-031 to FR-035, FR-102).
 import type { Doc } from '../model/types';
 import type { ExportSettings } from '../state/uiState';
 import { exportFilename } from './filename';
@@ -39,11 +39,12 @@ async function renderToBlob(doc: Doc, type: string, quality?: number): Promise<B
   );
 }
 
-function download(blob: Blob, filename: string): void {
-  const url = URL.createObjectURL(blob);
+/** Saves an already-rendered file to the device (also the fallback when sharing fails). */
+export function downloadFile(file: File): void {
+  const url = URL.createObjectURL(file);
   const a = document.createElement('a');
   a.href = url;
-  a.download = filename;
+  a.download = file.name;
   a.style.display = 'none';
   document.body.appendChild(a);
   a.click();
@@ -52,8 +53,11 @@ function download(blob: Blob, filename: string): void {
   setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
 
-/** Renders the collage at exactly canvas.width × canvas.height and downloads it. Nothing is downloaded on failure. */
-export async function exportCollage(doc: Doc, settings: ExportSettings): Promise<void> {
+/**
+ * Renders the collage at exactly canvas.width × canvas.height as a named file, the same bytes for
+ * Download and Share (FR-102, FR-104). Throws ExportError on failure.
+ */
+export async function renderExportFile(doc: Doc, settings: ExportSettings): Promise<File> {
   const { width, height } = doc.canvas;
   if (isWebKitOnly() && width * height > WEBKIT_MAX_AREA) throw new ExportError('too-large');
 
@@ -66,5 +70,10 @@ export async function exportCollage(doc: Doc, settings: ExportSettings): Promise
     throw e instanceof ExportError ? e : new ExportError('failed');
   }
   if (!blob || blob.size === 0) throw new ExportError('failed');
-  download(blob, exportFilename(new Date(), settings.format));
+  return new File([blob], exportFilename(new Date(), settings.format), { type });
+}
+
+/** Renders the collage and downloads it. Nothing is downloaded on failure. */
+export async function exportCollage(doc: Doc, settings: ExportSettings): Promise<void> {
+  downloadFile(await renderExportFile(doc, settings));
 }
