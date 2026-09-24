@@ -1,8 +1,9 @@
 import { useState, type FormEvent } from 'react';
 import { minSizeNorm } from '../model/geometry';
-import { computeRects, countCells, referencedAssets } from '../model/layout';
+import { cellsInReadingOrder, computeRects, countCells, referencedAssets } from '../model/layout';
 import { applyPreset, buildPreset, CANVAS_PRESETS, LAYOUT_PRESETS, type LayoutPresetKind } from '../model/presets';
 import { CUSTOM_SIZE_RANGE, type CanvasPreset, type Doc } from '../model/types';
+import { fillEmptyWithSamples } from '../samples/actions';
 import { isValidCustomSize, type DocAction } from '../state/docReducer';
 import { getAsset, maxSideFor } from '../state/imageStore';
 import styles from './Panel.module.css';
@@ -52,6 +53,8 @@ export function LayoutPanel({ doc, commit, undo, pushToast }: LayoutPanelProps) 
   const [customW, setCustomW] = useState(String(doc.canvas.width));
   const [customH, setCustomH] = useState(String(doc.canvas.height));
   const [customError, setCustomError] = useState<string | null>(null);
+  const [filling, setFilling] = useState(false);
+  const emptyCells = cellsInReadingOrder(doc.layout).filter((c) => !c.image).length;
 
   const warnIfSoft = (width: number, height: number) => {
     const needed = maxSideFor({ width, height });
@@ -192,6 +195,21 @@ export function LayoutPanel({ doc, commit, undo, pushToast }: LayoutPanelProps) 
             onClick={() => commit({ type: 'clearLayout' })}
           >
             Clear all lines
+          </button>
+          <button
+            type="button"
+            className={styles.textButton}
+            disabled={emptyCells === 0 || filling}
+            onClick={async () => {
+              setFilling(true);
+              try {
+                await fillEmptyWithSamples(doc, commit);
+              } finally {
+                setFilling(false);
+              }
+            }}
+          >
+            {filling ? 'Adding…' : 'Fill empty cells with samples'}
           </button>
         </div>
         {hasUndersizedCells(doc) && <p className={styles.note}>Some cells are smaller than the minimum size.</p>}

@@ -30,6 +30,8 @@ import {
 
 export type DocAction =
   | { type: 'setImage'; cellId: string; assetId: string }
+  /** Several photos in one undo step (used to fill cells with samples). */
+  | { type: 'setImages'; entries: { cellId: string; assetId: string }[] }
   | { type: 'setFraming'; cellId: string; patch: Partial<Pick<CellImage, 'zoom' | 'focusX' | 'focusY'>> }
   | { type: 'resetFraming'; cellId: string }
   | { type: 'removeImage'; cellId: string }
@@ -75,6 +77,12 @@ export function docReducer(doc: Doc, action: DocAction): Doc {
   switch (action.type) {
     case 'setImage':
       return { ...doc, layout: setCellImage(doc.layout, action.cellId, defaultFraming(action.assetId)) };
+    case 'setImages': {
+      if (action.entries.length === 0) return doc;
+      let layout = doc.layout;
+      for (const e of action.entries) layout = setCellImage(layout, e.cellId, defaultFraming(e.assetId));
+      return { ...doc, layout };
+    }
     case 'setFraming':
       return { ...doc, layout: setFraming(doc.layout, action.cellId, action.patch) };
     case 'resetFraming':

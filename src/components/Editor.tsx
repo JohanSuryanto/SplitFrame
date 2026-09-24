@@ -9,8 +9,10 @@ import { newId, type Doc, type Size } from '../model/types';
 import { removeDividerWithReport, type DocAction } from '../state/docReducer';
 import { getAsset, ImageLoadError, loadImage, maxSideFor } from '../state/imageStore';
 import type { Mode } from '../state/uiState';
+import { fillEmptyWithSamples, putSampleIn } from '../samples/actions';
 import { Cell, type CellActions } from './Cell';
 import { CellMenu } from './CellMenu';
+import { SamplePicker } from './SamplePicker';
 import { Divider, RemoveHandle } from './Divider';
 import { LineLayer } from './LineLayer';
 import { StrokeOverlay } from './StrokeOverlay';
@@ -164,6 +166,8 @@ export function Editor(props: EditorProps) {
   const fileInput = useRef<HTMLInputElement>(null);
   const pickerCell = useRef<string | null>(null);
   const [menuCellId, setMenuCellId] = useState<string | null>(null);
+  const [sampleCellId, setSampleCellId] = useState<string | null>(null);
+  const [samplesBusy, setSamplesBusy] = useState(false);
   const [focusedCellId, setFocusedCellId] = useState<string | undefined>(undefined);
   const [activeCellId, setActiveCellId] = useState<string | undefined>(undefined);
   type Swap = { from: string; url: string; x: number; y: number; target?: string };
@@ -250,6 +254,19 @@ export function Editor(props: EditorProps) {
     const id = menuCellId;
     setMenuCellId(null);
     if (id) focusCell(id);
+  }
+
+  function sampleFromMenu() {
+    if (menuCellId) setSampleCellId(menuCellId);
+  }
+
+  async function trySamples() {
+    setSamplesBusy(true);
+    try {
+      await fillEmptyWithSamples(doc, commit);
+    } finally {
+      setSamplesBusy(false);
+    }
   }
 
   function replaceFromMenu() {
@@ -392,7 +409,20 @@ export function Editor(props: EditorProps) {
             </button>
           </p>
         ) : (
-          blank && <p className={styles.hint}>Tap + to add a photo · Layout for grids · Draw to split your own way</p>
+          blank && (
+            <p className={styles.hint}>
+              Tap + to add a photo · Layout for grids · Draw to split your own way ·{' '}
+              <button
+                type="button"
+                {...{ [NO_GESTURE_ATTR]: '' }}
+                className={styles.hintAction}
+                onClick={() => void trySamples()}
+                disabled={samplesBusy}
+              >
+                {samplesBusy ? 'Adding samples…' : 'Try sample photos'}
+              </button>
+            </p>
+          )
         )}
       </div>
       <div
@@ -451,9 +481,20 @@ export function Editor(props: EditorProps) {
             left={Math.min(menuAnchor(menuPx).x, previewSize.w - 170)}
             top={menuAnchor(menuPx).y + 18}
             onReplace={replaceFromMenu}
+            onUseSample={sampleFromMenu}
             onRemove={() => commit({ type: 'removeImage', cellId: menuCellId })}
             onReset={() => commit({ type: 'resetFraming', cellId: menuCellId })}
             onClose={closeMenu}
+          />
+        )}
+        {sampleCellId && (
+          <SamplePicker
+            onPick={(id) => {
+              const cellId = sampleCellId;
+              setSampleCellId(null);
+              void putSampleIn(doc, cellId, id, commit);
+            }}
+            onCancel={() => setSampleCellId(null)}
           />
         )}
         {selectedPathMid && (

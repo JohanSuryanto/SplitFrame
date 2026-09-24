@@ -40,6 +40,7 @@ SplitFrame's only external interfaces are what the user can do with the app and 
 - **Export** (from the top bar) opens a panel: PNG/JPG, JPG quality, Download, output size.
 - **Panels**: on wide screens (≥ 1024 px) a floating card on the right; below that, a bottom sheet with a grab handle. Escape, ×, the handle (tap or swipe down) or a press outside closes them. The canvas shrinks to stay fully visible.
 - **Draw mode** shows a pill at the top of the canvas: "Drag across the canvas to split · Done".
+- **Sample photos (FR-048)**: blank canvas hint → "Try sample photos" fills the cell; Layout panel → "Fill empty cells with samples" (cycles Dunes, Lagoon, Mosaic, one undo step); photo ⋯ menu → "Use a sample…" opens a picker with the three thumbnails.
 - **Photo options**: the "⋯" button sits inside each photo and only shows on the hovered, focused or last-tapped photo.
 - **Toasts** appear above the dock (at the top on phones).
 
