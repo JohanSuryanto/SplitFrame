@@ -38,3 +38,7 @@ Expected: all pass, and the existing `filename.test.ts` is unchanged.
 | 13 | Desktop Firefox: open Export and Preview. | No Share button. Download works as before. | US3, FR-112, SC-105 |
 | 14 | Keyboard only (desktop Chrome on Windows): Tab to Share and press Enter. Check with a screen reader. | The Windows share panel opens. The name is announced as "Share to Story or other apps". | FR-117 |
 | 15 | Empty collage (no photos): tap Share. | The sheet opens with an image in the background color, same as Download. | FR-110 |
+
+## Results
+
+- **2026-09-24, production (`main` at `f88eaf4`)**: the user tested on production and confirmed that sharing works, including posting to Stories. Per-scenario results for #1–15 were not recorded individually.
