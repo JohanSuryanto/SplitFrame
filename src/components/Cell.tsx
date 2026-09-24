@@ -27,6 +27,8 @@ export interface CellActions {
   endGesture: () => void;
   cancelGesture: () => void;
   openPicker: (cellId: string) => void;
+  /** Empty cell tapped: offer "your photos" or a sample. */
+  chooseSource: (cellId: string) => void;
   loadInto: (cellId: string, file: File) => void;
   openMenu: (cellId: string) => void;
   swapStart: (cellId: string, clientX: number, clientY: number) => void;
@@ -147,14 +149,14 @@ function CellView({ px, index, image, mode, actions, swapTarget, swapSource, act
   };
 
   const onClick = () => {
-    if (arrange && !filled) actions.openPicker(px.cellId);
+    if (arrange && !filled) actions.chooseSource(px.cellId);
   };
 
   const onKeyDown = (e: KeyboardEvent) => {
     if (e.key === 'Enter' || e.key === ' ') {
       e.preventDefault();
       if (filled) actions.openMenu(px.cellId);
-      else actions.openPicker(px.cellId);
+      else actions.chooseSource(px.cellId);
     } else if (filled && (e.key === 'Delete' || e.key === 'Backspace')) {
       e.preventDefault();
       e.stopPropagation();
