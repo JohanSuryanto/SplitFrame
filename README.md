@@ -13,6 +13,7 @@ SplitFrame runs entirely in your browser. There is no backend, no account, no an
 - **Draw lines** (press **D**): nearly straight strokes snap to exact horizontal or vertical lines (and to the center, thirds and other lines); any other stroke keeps its drawn shape. Overshoot past an edge or line is ignored.
 - Drag straight lines to resize; select any line and press **×** or **Delete** to merge the cells beside it.
 - Photos: click or drop to add, drag to pan, scroll or pinch to zoom, double-click to reset, hold and drag to swap. The **⋯** menu offers Replace, Reset position and Remove.
+- Sample photos: three built-in generated artworks (drawn on your device) to try layouts without your own photos.
 - Style: gap, corner radius, padding and color.
 - Preview, then download as PNG or JPG at full resolution: `splitframe-YYYYMMDD-HHmm.png`.
 - Undo and redo everything (Ctrl/Cmd+Z, Ctrl/Cmd+Shift+Z), last 100 changes.
@@ -24,7 +25,7 @@ Requires Node.js 20 or newer.
 
 ```bash
 npm install
-npm run dev        # http://localhost:5173 (add -- --host to open it from a phone)
+npm run dev        # http://localhost:5175 (add -- --host to open it from a phone)
 npm test           # Vitest unit tests
 npm run typecheck  # tsc --noEmit
 npm run lint       # ESLint

@@ -6,13 +6,14 @@ interface CellMenuProps {
   left: number;
   top: number;
   onReplace: () => void;
+  onUseSample: () => void;
   onRemove: () => void;
   onReset: () => void;
   onClose: () => void;
 }
 
 /** Replace / Remove / Reset position for one photo (FR-024). Escape or a click outside closes it. */
-export function CellMenu({ left, top, onReplace, onRemove, onReset, onClose }: CellMenuProps) {
+export function CellMenu({ left, top, onReplace, onUseSample, onRemove, onReset, onClose }: CellMenuProps) {
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -57,6 +58,7 @@ export function CellMenu({ left, top, onReplace, onRemove, onReset, onClose }: C
   return (
     <div ref={ref} {...{ [NO_GESTURE_ATTR]: '' }} className={styles.menu} style={{ left, top }} role="menu" aria-label="Photo options">
       {item('Replace', onReplace)}
+      {item('Use a sample…', onUseSample)}
       {item('Reset position', onReset)}
       {item('Remove', onRemove)}
     </div>
