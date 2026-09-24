@@ -167,6 +167,7 @@ export function Editor(props: EditorProps) {
   const pickerCell = useRef<string | null>(null);
   const [menuCellId, setMenuCellId] = useState<string | null>(null);
   const [sampleCellId, setSampleCellId] = useState<string | null>(null);
+  const [addCellId, setAddCellId] = useState<string | null>(null);
   const [samplesBusy, setSamplesBusy] = useState(false);
   const [focusedCellId, setFocusedCellId] = useState<string | undefined>(undefined);
   const [activeCellId, setActiveCellId] = useState<string | undefined>(undefined);
@@ -210,6 +211,7 @@ export function Editor(props: EditorProps) {
     },
     loadInto: (cellId, file) => void loadInto(cellId, file),
     openMenu: setMenuCellId,
+    chooseSource: setAddCellId,
     focusChange: setFocusedCellId,
     activate: setActiveCellId,
     swapStart: (cellId, x, y) => {
@@ -239,6 +241,7 @@ export function Editor(props: EditorProps) {
       endGesture: () => latestActions.current.endGesture(),
       cancelGesture: () => latestActions.current.cancelGesture(),
       openPicker: (id) => latestActions.current.openPicker(id),
+      chooseSource: (id) => latestActions.current.chooseSource(id),
       loadInto: (id, f) => latestActions.current.loadInto(id, f),
       openMenu: (id) => latestActions.current.openMenu(id),
       focusChange: (id) => latestActions.current.focusChange(id),
@@ -485,6 +488,21 @@ export function Editor(props: EditorProps) {
             onRemove={() => commit({ type: 'removeImage', cellId: menuCellId })}
             onReset={() => commit({ type: 'resetFraming', cellId: menuCellId })}
             onClose={closeMenu}
+          />
+        )}
+        {addCellId && (
+          <SamplePicker
+            onDevice={() => {
+              const cellId = addCellId;
+              setAddCellId(null);
+              cellActions.openPicker(cellId);
+            }}
+            onPick={(id) => {
+              const cellId = addCellId;
+              setAddCellId(null);
+              void putSampleIn(doc, cellId, id, commit);
+            }}
+            onCancel={() => setAddCellId(null)}
           />
         )}
         {sampleCellId && (
