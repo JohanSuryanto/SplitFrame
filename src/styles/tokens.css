@@ -2,7 +2,7 @@
   /* Quiet, near-monochrome palette: the photos are the color. */
   --surface: #ffffff;
   --panel: #ffffff;
-  --canvas-backdrop: #f2f2f0;
+  --canvas-backdrop: #ffffff;
   --text: #17171a;
   --text-muted: #6b6b73;
   --text-faint: #b8b8bf;
@@ -29,26 +29,8 @@
   --sheet-h: 0px;
   --sheet-w: 0px;
 
-  color-scheme: light dark;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --surface: #1c1c20;
-    --panel: #1f1f23;
-    --canvas-backdrop: #111113;
-    --text: #f1f1f3;
-    --text-muted: #a0a0aa;
-    --text-faint: #55555d;
-    --hover: rgb(255 255 255 / 0.07);
-    --border: #2d2d33;
-    --border-strong: #44444c;
-    --accent: #8095ff;
-    --accent-contrast: #0b0b0e;
-    --danger: #ff6b6f;
-    --focus: #8095ff;
-    --shadow-lg: 0 10px 32px rgb(0 0 0 / 0.5), 0 1px 3px rgb(0 0 0 / 0.4);
-  }
+  /* Always the light theme, whatever the system setting (native controls too). */
+  color-scheme: light;
 }
 
 *,

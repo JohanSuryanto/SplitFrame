@@ -23,6 +23,9 @@ function cspPlugin(): Plugin {
 
 export default defineConfig({
   plugins: [react(), cspPlugin()],
+  // Fixed port for dev and preview; fail instead of silently switching if it's taken.
+  server: { port: 5175, strictPort: true },
+  preview: { port: 5175, strictPort: true },
   test: {
     globals: true,
     environment: 'node',
