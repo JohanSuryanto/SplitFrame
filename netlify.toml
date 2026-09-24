@@ -2,9 +2,15 @@
   command = "npm run build"
   publish = "dist"
 
-# Force the free *.netlify.app subdomain to redirect to the real domain.
+# Force the free *.netlify.app subdomain and the www alias to redirect to the real domain.
 [[redirects]]
   from = "https://splitframejs.netlify.app/*"
+  to = "https://splitframe.johansuryanto.dev/:splat"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "https://www.splitframe.johansuryanto.dev/*"
   to = "https://splitframe.johansuryanto.dev/:splat"
   status = 301
   force = true
