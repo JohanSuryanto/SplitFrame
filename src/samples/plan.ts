@@ -1,13 +1,16 @@
 // Which sample goes where. Pure, so it can be tested without a canvas.
 
-export type SampleId = 'dunes' | 'lagoon' | 'mosaic';
+export type SampleId = 'dunes' | 'lagoon' | 'mosaic' | 'aurora' | 'bloom' | 'terrazzo';
 
-export const SAMPLE_IDS: SampleId[] = ['dunes', 'lagoon', 'mosaic'];
+export const SAMPLE_IDS: SampleId[] = ['dunes', 'lagoon', 'mosaic', 'aurora', 'bloom', 'terrazzo'];
 
 export const SAMPLE_NAMES: Record<SampleId, string> = {
   dunes: 'Dunes',
   lagoon: 'Lagoon',
   mosaic: 'Mosaic',
+  aurora: 'Aurora',
+  bloom: 'Bloom',
+  terrazzo: 'Terrazzo',
 };
 
 /**
