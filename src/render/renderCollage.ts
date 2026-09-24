@@ -1,7 +1,9 @@
-// Executes a draw plan on a 2D canvas context. Used by Preview (screen size) and export (full size).
+// Executes a draw plan on a 2D canvas context, plus the optional watermark. Used by Preview (screen
+// size) and export (full size), never by the editor (FR-215).
 import type { Doc, Size } from '../model/types';
 import { getAsset } from '../state/imageStore';
 import { planDraw } from './planDraw';
+import { planWatermark, watermarkFont } from './watermark';
 
 type Ctx = CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D;
 
@@ -20,7 +22,7 @@ function roundRectPath(ctx: Ctx, x: number, y: number, w: number, h: number, r: 
   }
 }
 
-export function renderCollage(ctx: Ctx, doc: Doc, sizePx: Size): void {
+export function renderCollage(ctx: Ctx, doc: Doc, sizePx: Size, opts?: { watermark?: boolean }): void {
   ctx.imageSmoothingEnabled = true;
   ctx.imageSmoothingQuality = 'high';
 
@@ -62,4 +64,26 @@ export function renderCollage(ctx: Ctx, doc: Doc, sizePx: Size): void {
         break;
     }
   }
+
+  if (opts?.watermark) drawWatermark(ctx, doc.canvas, sizePx);
+}
+
+/** Draws the credit for an export canvas of this size onto a surface of sizePx (also the editor while Export is open). */
+export function drawWatermark(ctx: Ctx, canvas: { width: number; height: number }, sizePx: Size): void {
+  const op = planWatermark(canvas, sizePx, (text, px) => {
+    ctx.font = watermarkFont(px);
+    return ctx.measureText(text).width;
+  });
+  if (!op) return;
+  ctx.save();
+  ctx.font = op.font;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'alphabetic';
+  ctx.fillStyle = op.color;
+  ctx.shadowColor = op.shadow.color;
+  ctx.shadowBlur = op.shadow.blur;
+  ctx.shadowOffsetX = 0;
+  ctx.shadowOffsetY = op.shadow.offsetY;
+  ctx.fillText(op.text, op.x, op.y);
+  ctx.restore();
 }

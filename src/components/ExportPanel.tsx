@@ -3,6 +3,7 @@ import type { Doc } from '../model/types';
 import { ExportError, exportCollage } from '../render/exportCanvas';
 import type { ExportSettings, Toast } from '../state/uiState';
 import { isStoryShape } from '../render/share';
+import { watermarkFits } from '../render/watermark';
 import { useShare } from '../state/useShare';
 import { DownloadIcon, ShareIcon } from './icons';
 import styles from './Panel.module.css';
@@ -14,7 +15,7 @@ interface ExportPanelProps {
   pushToast: (message: string, action?: Toast['action']) => void;
 }
 
-/** Format (PNG/JPG), JPG quality, Share and Download (FR-031 to FR-035, FR-108 to FR-111). */
+/** Format (PNG/JPG), JPG quality, watermark, Share and Download (FR-031 to FR-035, FR-108 to FR-111, FR-209). */
 export function ExportPanel({ doc, settings, onChange, pushToast }: ExportPanelProps) {
   const [busy, setBusy] = useState(false);
   const sharing = useShare({ doc, settings, pushToast });
@@ -62,6 +63,24 @@ export function ExportPanel({ doc, settings, onChange, pushToast }: ExportPanelP
           </label>
         </div>
       )}
+      <div className={styles.section}>
+        <button
+          type="button"
+          role="switch"
+          aria-checked={settings.watermark}
+          aria-describedby="watermark-desc"
+          className={styles.switchRow}
+          onClick={() => onChange({ watermark: !settings.watermark })}
+        >
+          <span>Watermark</span>
+          <span className={styles.switchTrack} aria-hidden="true">
+            <span className={styles.switchThumb} />
+          </span>
+        </button>
+        <p id="watermark-desc" className={styles.switchHint}>
+          {watermarkFits(doc.canvas) ? 'Adds “SplitFrame · splitframe.johansuryanto.dev” at the bottom' : 'Too small for a watermark'}
+        </p>
+      </div>
       <div className={styles.actions}>
         {sharing.supported && (
           <button

@@ -19,13 +19,13 @@ function isWebKitOnly(): boolean {
   return /AppleWebKit/.test(ua) && !/Chrome|Chromium|Edg/.test(ua);
 }
 
-async function renderToBlob(doc: Doc, type: string, quality?: number): Promise<Blob> {
+async function renderToBlob(doc: Doc, type: string, quality: number | undefined, watermark: boolean): Promise<Blob> {
   const { width, height } = doc.canvas;
   if (typeof OffscreenCanvas !== 'undefined') {
     const canvas = new OffscreenCanvas(width, height);
     const ctx = canvas.getContext('2d');
     if (!ctx) throw new ExportError('failed');
-    renderCollage(ctx, doc, { w: width, h: height });
+    renderCollage(ctx, doc, { w: width, h: height }, { watermark });
     return canvas.convertToBlob({ type, quality });
   }
   const canvas = document.createElement('canvas');
@@ -33,7 +33,7 @@ async function renderToBlob(doc: Doc, type: string, quality?: number): Promise<B
   canvas.height = height;
   const ctx = canvas.getContext('2d');
   if (!ctx) throw new ExportError('failed');
-  renderCollage(ctx, doc, { w: width, h: height });
+  renderCollage(ctx, doc, { w: width, h: height }, { watermark });
   return new Promise((resolve, reject) =>
     canvas.toBlob((b) => (b ? resolve(b) : reject(new ExportError('failed'))), type, quality),
   );
@@ -65,12 +65,25 @@ export async function renderExportFile(doc: Doc, settings: ExportSettings): Prom
   const quality = settings.format === 'jpg' ? settings.quality / 100 : undefined;
   let blob: Blob;
   try {
-    blob = await renderToBlob(doc, type, quality);
+    blob = await renderToBlob(doc, type, quality, settings.watermark);
   } catch (e) {
     throw e instanceof ExportError ? e : new ExportError('failed');
   }
   if (!blob || blob.size === 0) throw new ExportError('failed');
   return new File([blob], exportFilename(new Date(), settings.format), { type });
+}
+
+/** Whether two export requests produce the same file, so a rendered file can be reused (research W7). */
+export function sameExportInput(
+  a: { doc: Doc; settings: ExportSettings },
+  b: { doc: Doc; settings: ExportSettings },
+): boolean {
+  return (
+    a.doc === b.doc &&
+    a.settings.format === b.settings.format &&
+    a.settings.watermark === b.settings.watermark &&
+    (a.settings.format === 'png' || a.settings.quality === b.settings.quality)
+  );
 }
 
 /** Renders the collage and downloads it. Nothing is downloaded on failure. */

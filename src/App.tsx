@@ -123,6 +123,7 @@ export default function App() {
           selectDivider={ui.selectDivider}
           pushToast={ui.pushToast}
           onPreview={openPreview}
+          showWatermark={panel === 'export' && ui.ui.exportSettings.watermark}
         />
       </main>
 
@@ -154,6 +155,7 @@ export default function App() {
         <PreviewDialog
           doc={history.doc}
           exportSettings={ui.ui.exportSettings}
+          onExportSettingsChange={ui.setExportSettings}
           onClose={() => ui.setPreviewOpen(false)}
           pushToast={ui.pushToast}
         />
