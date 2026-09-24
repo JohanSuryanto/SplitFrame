@@ -10,24 +10,27 @@ import styles from './PreviewDialog.module.css';
 interface PreviewDialogProps {
   doc: Doc;
   exportSettings: ExportSettings;
+  onExportSettingsChange: (patch: Partial<ExportSettings>) => void;
   onClose: () => void;
   pushToast: (message: string, action?: Toast['action']) => void;
 }
 
-const BAR = 64;
+/** Room for the action bar; on phones it wraps onto two rows. */
+const barHeight = () => (window.innerWidth < 768 ? 112 : 64);
 
 function fit(canvas: { width: number; height: number }) {
   const w = window.innerWidth * 0.9;
-  const h = window.innerHeight * 0.9 - BAR;
+  const h = window.innerHeight * 0.9 - barHeight();
   const k = Math.min(w / canvas.width, h / canvas.height);
   return { w: Math.max(1, Math.floor(canvas.width * k)), h: Math.max(1, Math.floor(canvas.height * k)) };
 }
 
 /**
  * The finished collage without any editing controls, drawn by the export renderer so it matches
- * the downloaded file (FR-041 to FR-043). Share is offered next to Export (FR-108).
+ * the downloaded file (FR-041 to FR-043). Share is offered next to Export (FR-108), and the
+ * Watermark switch mirrors the one in the Export panel (FR-209).
  */
-export function PreviewDialog({ doc, exportSettings, onClose, pushToast }: PreviewDialogProps) {
+export function PreviewDialog({ doc, exportSettings, onExportSettingsChange, onClose, pushToast }: PreviewDialogProps) {
   const dialogRef = useRef<HTMLDialogElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [display, setDisplay] = useState(() => fit(doc.canvas));
@@ -50,8 +53,8 @@ export function PreviewDialog({ doc, exportSettings, onClose, pushToast }: Previ
     const backing = { w: Math.round(display.w * dpr), h: Math.round(display.h * dpr) };
     c.width = backing.w;
     c.height = backing.h;
-    renderCollage(ctx, doc, backing);
-  }, [doc, display]);
+    renderCollage(ctx, doc, backing, { watermark: exportSettings.watermark });
+  }, [doc, display, exportSettings.watermark]);
 
   const download = async () => {
     setBusy(true);
@@ -85,6 +88,18 @@ export function PreviewDialog({ doc, exportSettings, onClose, pushToast }: Previ
           <span className={styles.size}>
             {doc.canvas.width} × {doc.canvas.height} · {exportSettings.format.toUpperCase()}
           </span>
+          <button
+            type="button"
+            role="switch"
+            aria-checked={exportSettings.watermark}
+            className={styles.toggle}
+            onClick={() => onExportSettingsChange({ watermark: !exportSettings.watermark })}
+          >
+            <span className={styles.track} aria-hidden="true">
+              <span className={styles.thumb} />
+            </span>
+            Watermark
+          </button>
           <button type="button" className={styles.secondary} onClick={onClose}>
             Close
           </button>

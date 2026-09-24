@@ -2,7 +2,7 @@
 // every outcome into the right message (FR-106, FR-113 to FR-116; research S4, S5).
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { Doc } from '../model/types';
-import { ExportError, downloadFile, renderExportFile } from '../render/exportCanvas';
+import { ExportError, downloadFile, renderExportFile, sameExportInput } from '../render/exportCanvas';
 import { canShareImages, shareFile } from '../render/share';
 import type { ExportSettings, Toast } from './uiState';
 
@@ -20,15 +20,6 @@ interface Rendered {
   file: Promise<File>;
 }
 
-/** Doc is immutable, so reference equality identifies the collage; quality only matters for JPG. */
-function sameInput(r: Rendered, doc: Doc, settings: ExportSettings): boolean {
-  return (
-    r.doc === doc &&
-    r.settings.format === settings.format &&
-    (settings.format === 'png' || r.settings.quality === settings.quality)
-  );
-}
-
 export function useShare({ doc, settings, pushToast, prerender = false }: UseShareOptions) {
   const supported = useMemo(() => canShareImages(settings.format), [settings.format]);
   const [busy, setBusy] = useState(false);
@@ -38,7 +29,7 @@ export function useShare({ doc, settings, pushToast, prerender = false }: UseSha
 
   const getFile = useCallback((): Promise<File> => {
     const r = renderedRef.current;
-    if (r && sameInput(r, doc, settings)) return r.file;
+    if (r && sameExportInput(r, { doc, settings })) return r.file;
     const file = renderExportFile(doc, settings);
     const entry: Rendered = { doc, settings, file };
     renderedRef.current = entry;

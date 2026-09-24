@@ -16,6 +16,7 @@ import { SamplePicker } from './SamplePicker';
 import { Divider, RemoveHandle } from './Divider';
 import { LineLayer } from './LineLayer';
 import { StrokeOverlay } from './StrokeOverlay';
+import { WatermarkLayer } from './WatermarkLayer';
 import styles from './Editor.module.css';
 
 const MARGIN = 16;
@@ -63,6 +64,8 @@ interface EditorProps {
   pushToast: (message: string, action?: { label: string; run: () => void }) => void;
   /** Opens the Preview (offered once an upload fills the last empty cell, FR-044). */
   onPreview: () => void;
+  /** Draw the export watermark on the canvas: only while the Export panel is open and it is on (FR-215). */
+  showWatermark: boolean;
 }
 
 const isTyping = (t: EventTarget | null) =>
@@ -463,6 +466,7 @@ export function Editor(props: EditorProps) {
           onRemovePath={removeLine}
           focusedCellId={focusedCellId}
         />
+        {props.showWatermark && <WatermarkLayer canvas={doc.canvas} size={previewSize} />}
         {straightLines.map((d) => (
           <Divider
             key={d.splitId}

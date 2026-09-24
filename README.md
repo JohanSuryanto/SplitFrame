@@ -17,6 +17,7 @@ SplitFrame runs entirely in your browser. There is no backend, no account, no an
 - Style: gap, corner radius, padding and color.
 - Preview, then download as PNG or JPG at full resolution: `splitframe-YYYYMMDD-HHmm.png`.
 - **Share to Story**: send the finished image straight to Instagram (Story) or WhatsApp (My status) through your device's share menu, without saving it first. See [Share to Story](#share-to-story).
+- **Watermark**: a small “SplitFrame · splitframe.johansuryanto.dev” credit at the bottom of exported and shared images, on by default; switch it off in Export.
 - Undo and redo everything (Ctrl/Cmd+Z, Ctrl/Cmd+Shift+Z), last 100 changes.
 - Works with mouse, touch and pen; keyboard reachable.
 
@@ -27,6 +28,7 @@ SplitFrame runs entirely in your browser. There is no backend, no account, no an
 - It uses the browser's Web Share API, so it needs HTTPS (the Netlify site is; a plain `http://` LAN address is not).
 - It shows up where the browser can share image files: iOS/iPadOS Safari, Android Chrome, Chrome/Edge on Windows and ChromeOS, and macOS Safari. Elsewhere (for example Firefox on desktop) the button is hidden and Download works as usual.
 - A 9:16 canvas fills the Story frame; other shapes get borders added by Instagram or WhatsApp.
+- On 9:16 the watermark sits 5% above the bottom edge, leaving a little room for Instagram's and WhatsApp's reply controls.
 
 ## Development
 

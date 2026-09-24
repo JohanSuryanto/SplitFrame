@@ -22,6 +22,8 @@ export interface ExportSettings {
   format: 'png' | 'jpg';
   /** 10–100, default 92. */
   quality: number;
+  /** Adds the SplitFrame credit to Preview, Download and Share. Session only; default on (FR-210). */
+  watermark: boolean;
 }
 
 export interface Toast {
@@ -53,7 +55,7 @@ type UiAction =
 export const initialUiState: UiState = {
   mode: 'arrange',
   previewOpen: false,
-  exportSettings: { format: 'png', quality: 92 },
+  exportSettings: { format: 'png', quality: 92, watermark: true },
   toasts: [],
 };
 

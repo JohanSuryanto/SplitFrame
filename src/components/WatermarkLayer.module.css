@@ -1,0 +1,7 @@
+/* Above photos and lines, below divider handles and menus; never catches pointer input. */
+.layer {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+}
