@@ -1,8 +1,18 @@
 import { assignSamples, SAMPLE_IDS } from './plan';
 
 describe('assignSamples', () => {
-  it('cycles through the three samples in reading order', () => {
-    expect(assignSamples(['a', 'b', 'c', 'd']).map((x) => x.sampleId)).toEqual(['dunes', 'lagoon', 'mosaic', 'dunes']);
+  it('cycles through all the samples in reading order', () => {
+    const ids = Array.from({ length: 8 }, (_, i) => `c${i}`);
+    expect(assignSamples(ids).map((x) => x.sampleId)).toEqual([
+      'dunes',
+      'lagoon',
+      'mosaic',
+      'aurora',
+      'bloom',
+      'terrazzo',
+      'dunes',
+      'lagoon',
+    ]);
   });
 
   it('can start the cycle at an offset', () => {
@@ -14,7 +24,8 @@ describe('assignSamples', () => {
     expect(assignSamples([])).toEqual([]);
   });
 
-  it('ships exactly three samples for the MVP', () => {
-    expect(SAMPLE_IDS).toHaveLength(3);
+  it('ships six samples with unique ids', () => {
+    expect(SAMPLE_IDS).toHaveLength(6);
+    expect(new Set(SAMPLE_IDS).size).toBe(6);
   });
 });

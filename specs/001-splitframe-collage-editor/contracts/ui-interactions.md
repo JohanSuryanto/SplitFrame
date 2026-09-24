@@ -8,7 +8,7 @@ SplitFrame's only external interfaces are what the user can do with the app and 
 |--------|------|---------|--------|-----------|
 | Canvas | Draw | Drag ≥ 6 px | A live preview line. Nearly straight horizontal/vertical strokes show a straight line with snap guides; other strokes show the smoothed freehand path, trimmed at cell edges and extended up to 16 px to reach an edge. The line turns red with "Too small", "Lines can't cross themselves" or "Draw from edge to edge" when the split isn't allowed. Photos in cells under the line show their new crop (FR-045). On release the split is made, or rejected with no change. | 1 per accepted stroke |
 | Canvas | Draw | Tap | Nothing happens (no file picker). | — |
-| Empty cell | Arrange | Click or tap | Opens the file picker (`accept="image/*"`). | 1 when the image is set |
+| Empty cell | Arrange | Click or tap | Opens "Add a photo": **Choose from your photos** (file picker, `accept="image/*"`) or one of the six sample thumbnails. | 1 when the image is set |
 | Any cell | Any | Drop an image file | Sets that cell's photo. With several files, the first one is used. | 1 |
 | Filled cell | Arrange | Drag | Pans the photo, clamped so it always covers the cell. | 1 per drag |
 | Filled cell | Arrange | Wheel or pinch | Zooms around the pointer or pinch center, from 1× (cover) to 8×. | 1 per gesture (wheel: per 300 ms burst) |
@@ -40,7 +40,7 @@ SplitFrame's only external interfaces are what the user can do with the app and 
 - **Export** (from the top bar) opens a panel: PNG/JPG, JPG quality, Download, output size.
 - **Panels**: on wide screens (≥ 1024 px) a floating card on the right; below that, a bottom sheet with a grab handle. Escape, ×, the handle (tap or swipe down) or a press outside closes them. The canvas shrinks to stay fully visible.
 - **Draw mode** shows a pill at the top of the canvas: "Drag across the canvas to split · Done".
-- **Sample photos (FR-048)**: blank canvas hint → "Try sample photos" fills the cell; Layout panel → "Fill empty cells with samples" (cycles Dunes, Lagoon, Mosaic, one undo step); photo ⋯ menu → "Use a sample…" opens a picker with the three thumbnails.
+- **Sample photos (FR-048)**: tapping an empty cell offers them next to "Choose from your photos"; blank canvas hint → "Try sample photos" fills the cell; Layout panel → "Fill empty cells with samples" (cycles Dunes, Lagoon, Mosaic, Aurora, Bloom, Terrazzo, one undo step); photo ⋯ menu → "Use a sample…" opens a picker with the six thumbnails.
 - **Photo options**: the "⋯" button sits inside each photo and only shows on the hovered, focused or last-tapped photo.
 - **Toasts** appear above the dock (at the top on phones).
 

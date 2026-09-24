@@ -218,7 +218,7 @@ A user makes a whole collage on a phone with touch only, or on a desktop using t
 
 **Photos in cells**
 
-- **FR-020**: Clicking/tapping an empty cell (in Arrange mode), or pressing Enter on a focused empty cell (in either mode), MUST open a file picker that accepts images only.
+- **FR-020**: Clicking/tapping an empty cell (in Arrange mode), or pressing Enter on a focused empty cell (in either mode), MUST offer "Choose from your photos" (FR-048), which opens a file picker that accepts images only.
 - **FR-021**: Dropping an image file on a cell MUST place it in that cell.
 - **FR-022**: Photos MUST fill their cell by default, with no empty space and no distortion (cover fit), centered. For a shaped cell, the photo MUST cover the cell's bounding box and be clipped to the cell's shape.
 - **FR-023**: Users MUST be able to pan a photo by dragging and zoom it by wheel or pinch. The photo MUST always cover its cell, so zoom can never go below cover size.
@@ -250,7 +250,7 @@ A user makes a whole collage on a phone with touch only, or on a desktop using t
 - **FR-043**: Closing Preview MUST return to the editor with nothing changed. Preview MUST offer Export directly.
 - **FR-044**: When an upload fills the last empty cell, the app MUST offer a shortcut to Preview without opening it automatically.
 - **FR-045**: While a line is being drawn across a cell with a photo, the live preview MUST show how that photo will be cropped in its resulting cell.
-- **FR-048**: The app MUST offer built-in sample images so a collage can be tried without personal photos. There are 3 generated artworks (Dunes, Lagoon, Mosaic), drawn on the device (no download). Tapping an empty cell MUST still open the device picker in one tap. Samples are offered through "Try sample photos" on a blank canvas, "Fill empty cells with samples" in Layout (one undo step), and "Use a sample…" in a photo's options menu. Samples behave like any photo (pan, zoom, swap, undo, export).
+- **FR-048**: The app MUST offer built-in sample images so a collage can be tried without personal photos. There are 6 generated artworks (Dunes, Lagoon, Mosaic, Aurora, Bloom, Terrazzo), drawn on the device (no download). Tapping an empty cell (or pressing Enter on it) MUST open an "Add a photo" chooser: "Choose from your photos" opens the device picker, and a sample thumbnail fills the cell. Samples are also offered through "Try sample photos" on a blank canvas, "Fill empty cells with samples" in Layout (one undo step), and "Use a sample…" in a photo's options menu. Samples behave like any photo (pan, zoom, swap, undo, export).
 - **FR-047**: Users MUST be able to start a new collage from the top bar. When the collage has any photo or line, the app MUST ask for confirmation first. Starting again clears photos and lines, keeps the canvas shape and style, and can be undone. While there is unsaved work, refreshing or closing the page MUST trigger the browser's leave-page warning.
 - **FR-046**: When a freehand line splits a cell that holds a photo, the photo MUST stay in the larger of the two new cells. (For straight horizontal or vertical lines it stays in the top or left cell, as before.)
 
