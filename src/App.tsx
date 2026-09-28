@@ -124,6 +124,7 @@ export default function App() {
           pushToast={ui.pushToast}
           onPreview={openPreview}
           showWatermark={panel === 'export' && ui.ui.exportSettings.watermark}
+          releaseUnused={() => releaseUnreferenced(referencedAssetsInHistory())}
         />
       </main>
 

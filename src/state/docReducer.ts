@@ -29,7 +29,8 @@ import {
 } from '../model/types';
 
 export type DocAction =
-  | { type: 'setImage'; cellId: string; assetId: string }
+  /** framing: chosen in the Adjust popup (feature 004); the default fill when left out. */
+  | { type: 'setImage'; cellId: string; assetId: string; framing?: Pick<CellImage, 'zoom' | 'focusX' | 'focusY'> }
   /** Several photos in one undo step (used to fill cells with samples). */
   | { type: 'setImages'; entries: { cellId: string; assetId: string }[] }
   | { type: 'setFraming'; cellId: string; patch: Partial<Pick<CellImage, 'zoom' | 'focusX' | 'focusY'>> }
@@ -76,7 +77,7 @@ export function hasWork(doc: Doc): boolean {
 export function docReducer(doc: Doc, action: DocAction): Doc {
   switch (action.type) {
     case 'setImage':
-      return { ...doc, layout: setCellImage(doc.layout, action.cellId, defaultFraming(action.assetId)) };
+      return { ...doc, layout: setCellImage(doc.layout, action.cellId, { ...defaultFraming(action.assetId), ...action.framing }) };
     case 'setImages': {
       if (action.entries.length === 0) return doc;
       let layout = doc.layout;

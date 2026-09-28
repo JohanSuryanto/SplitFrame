@@ -7,9 +7,10 @@ import { pathMidpoint, polygonCentroid } from '../model/polygon';
 import type { Area } from '../model/snap';
 import { newId, type Doc, type Size } from '../model/types';
 import { removeDividerWithReport, type DocAction } from '../state/docReducer';
-import { getAsset, ImageLoadError, loadImage, maxSideFor } from '../state/imageStore';
+import { dropHeld, getAsset, holdAsset, ImageLoadError, loadImage, maxSideFor } from '../state/imageStore';
 import type { Mode } from '../state/uiState';
 import { fillEmptyWithSamples, putSampleIn } from '../samples/actions';
+import { AdjustDialog, type Framing } from './AdjustDialog';
 import { Cell, type CellActions } from './Cell';
 import { CellMenu } from './CellMenu';
 import { SamplePicker } from './SamplePicker';
@@ -66,6 +67,16 @@ interface EditorProps {
   onPreview: () => void;
   /** Draw the export watermark on the canvas: only while the Export panel is open and it is on (FR-215). */
   showWatermark: boolean;
+  /** Frees photos no undo step refers to (a photo cancelled in the Adjust popup). */
+  releaseUnused: () => void;
+}
+
+/** A photo being framed in the Adjust popup (feature 004); nothing is committed until Done. */
+interface AdjustSession {
+  mode: 'new' | 'replace' | 'adjust';
+  cellId: string;
+  assetId: string;
+  framing: Framing;
 }
 
 const isTyping = (t: EventTarget | null) =>
@@ -183,14 +194,15 @@ export function Editor(props: EditorProps) {
     setSwapState(next);
   };
 
+  const [adjust, setAdjust] = useState<AdjustSession | null>(null);
+
+  // A device photo opens the Adjust popup first; it goes into the cell only on Done (FR-301).
   const loadInto = async (cellId: string, file: File) => {
     try {
       const asset = await loadImage(file, maxSideFor(doc.canvas));
-      const cells = cellsInReadingOrder(doc.layout);
-      const empty = cells.filter((c) => !c.image);
-      const fillsLast = cells.length > 1 && empty.length === 1 && empty[0]!.id === cellId;
-      commit({ type: 'setImage', cellId, assetId: asset.id });
-      if (fillsLast) props.pushToast('All cells filled', { label: 'Preview', run: props.onPreview });
+      holdAsset(asset.id);
+      const hasImage = cellsInReadingOrder(doc.layout).some((c) => c.id === cellId && c.image);
+      setAdjust({ mode: hasImage ? 'replace' : 'new', cellId, assetId: asset.id, framing: { zoom: 1, focusX: 0.5, focusY: 0.5 } });
     } catch (e) {
       if (e instanceof ImageLoadError) props.pushToast(e.message);
       else throw e;
@@ -255,6 +267,45 @@ export function Editor(props: EditorProps) {
     }),
     [],
   );
+
+  const finishAdjust = (framing: Framing) => {
+    if (!adjust) return;
+    const { mode, cellId, assetId } = adjust;
+    if (mode === 'adjust') {
+      commit({ type: 'setFraming', cellId, patch: framing });
+    } else {
+      const cells = cellsInReadingOrder(doc.layout);
+      const empty = cells.filter((c) => !c.image);
+      const fillsLast = cells.length > 1 && empty.length === 1 && empty[0]!.id === cellId;
+      // Adding the photo and its framing is one undo step (FR-312).
+      commit({ type: 'setImage', cellId, assetId, framing });
+      dropHeld(assetId);
+      if (fillsLast) props.pushToast('All cells filled', { label: 'Preview', run: props.onPreview });
+    }
+    setAdjust(null);
+    focusCell(cellId);
+  };
+
+  const cancelAdjust = () => {
+    if (!adjust) return;
+    if (adjust.mode !== 'adjust') {
+      dropHeld(adjust.assetId);
+      props.releaseUnused();
+    }
+    setAdjust(null);
+    focusCell(adjust.cellId);
+  };
+
+  function openAdjust() {
+    const image = cellsInReadingOrder(doc.layout).find((c) => c.id === menuCellId)?.image;
+    if (!menuCellId || !image) return;
+    setAdjust({
+      mode: 'adjust',
+      cellId: menuCellId,
+      assetId: image.assetId,
+      framing: { zoom: image.zoom, focusX: image.focusX, focusY: image.focusY },
+    });
+  }
 
   function closeMenu() {
     const id = menuCellId;
@@ -487,6 +538,7 @@ export function Editor(props: EditorProps) {
           <CellMenu
             left={Math.min(menuAnchor(menuPx).x, previewSize.w - 170)}
             top={menuAnchor(menuPx).y + 18}
+            onAdjust={openAdjust}
             onReplace={replaceFromMenu}
             onUseSample={sampleFromMenu}
             onRemove={() => commit({ type: 'removeImage', cellId: menuCellId })}
@@ -528,6 +580,16 @@ export function Editor(props: EditorProps) {
         )}
         {overlay && <StrokeOverlay {...overlay} />}
       </div>
+      {adjust && (
+        <AdjustDialog
+          doc={doc}
+          cellId={adjust.cellId}
+          assetId={adjust.assetId}
+          initial={adjust.framing}
+          onDone={finishAdjust}
+          onCancel={cancelAdjust}
+        />
+      )}
     </div>
   );
 }

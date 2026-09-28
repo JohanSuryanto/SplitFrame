@@ -54,7 +54,7 @@ A user adjusts how each photo sits inside its cell: moves it to show the right p
 **Acceptance Scenarios**:
 
 1. **Given** a filled cell in Arrange mode, **When** the user drags inside it (mouse, touch or pen), **Then** the photo moves with the pointer and can never be moved far enough to leave empty space in the cell.
-2. **Given** a filled cell, **When** the user scrolls the wheel or pinches over it, **Then** the photo zooms around the pointer or pinch center, and cannot zoom out past the size where it just covers the cell.
+2. **Given** a filled cell, **When** the user scrolls the wheel or pinches over it, **Then** the photo zooms around the pointer or pinch center, can zoom out down to where the whole photo fits, with gaps shown in the background color, and snaps to fill when close. *(Amended 2026-09-28 by feature 004.)*
 3. **Given** a moved or zoomed photo, **When** the user double-clicks or double-taps it, or chooses "Reset position", **Then** it returns to the default centered cover fit.
 4. **Given** a filled cell, **When** the user chooses "Replace", **Then** a picker opens and the new photo replaces the old one with the default fit; **When** they choose "Remove", **Then** the cell becomes empty.
 5. **Given** a collage with adjusted photos, **When** it is exported, **Then** each cell in the file shows the same crop, position and zoom as the editor preview.
@@ -221,7 +221,7 @@ A user makes a whole collage on a phone with touch only, or on a desktop using t
 - **FR-020**: Clicking/tapping an empty cell (in Arrange mode), or pressing Enter on a focused empty cell (in either mode), MUST offer "Choose from your photos" (FR-048), which opens a file picker that accepts images only.
 - **FR-021**: Dropping an image file on a cell MUST place it in that cell.
 - **FR-022**: Photos MUST fill their cell by default, with no empty space and no distortion (cover fit), centered. For a shaped cell, the photo MUST cover the cell's bounding box and be clipped to the cell's shape.
-- **FR-023**: Users MUST be able to pan a photo by dragging and zoom it by wheel or pinch. The photo MUST always cover its cell, so zoom can never go below cover size.
+- **FR-023**: Users MUST be able to pan a photo by dragging and zoom it by wheel or pinch. Photos fill their cell by default. Users may zoom out down to fit (see feature 004 FR-314 to FR-317); gaps show the background color. *(Amended 2026-09-28 by feature 004.)*
 - **FR-024**: Double-click/double-tap MUST reset a photo's position and zoom. Each filled cell MUST offer Replace, Remove and Reset position.
 - **FR-025**: When a cell changes size (resize, split, aspect change), its photo MUST be adjusted so it still covers the cell.
 - **FR-026**: Photos larger than the export needs MUST be scaled down when loaded, to keep memory use safe on phones.

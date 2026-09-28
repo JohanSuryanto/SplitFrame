@@ -1,4 +1,4 @@
-import { frameImage, panBy, resetFraming, zoomAt } from './frame';
+import { effectiveZoom, frameImage, panBy, placeImage, resetFraming, zoomAt, zoomMin, zoomTo } from './frame';
 import type { CellImage, PxCell } from './types';
 
 const cell = (w: number, h: number): PxCell => ({ cellId: 'c', x: 0, y: 0, w, h, r: 0 });
@@ -82,9 +82,10 @@ describe('panBy / zoomAt (T037)', () => {
     expect(frameImage(c, asset, back).sx).toBeGreaterThan(frameImage(c, asset, atEdge).sx);
   });
 
-  it('clamps zoom to [1, 8]', () => {
+  // Feature 004 replaced "never below cover" (base FR-023) with "down to fit" (FR-314).
+  it('clamps zoom to [fit, 8]', () => {
     expect(zoomAt(img(), 100, { x: 100, y: 200 }, c, asset).zoom).toBe(8);
-    expect(zoomAt(img({ zoom: 2 }), 0.01, { x: 100, y: 200 }, c, asset).zoom).toBe(1);
+    expect(zoomAt(img({ zoom: 2 }), 0.01, { x: 100, y: 200 }, c, asset).zoom).toBeCloseTo(zoomMin(c, asset), 12);
   });
 
   it('keeps the image point under the pointer fixed when not clamped', () => {
@@ -100,5 +101,76 @@ describe('panBy / zoomAt (T037)', () => {
     const k = c.w / frameImage(c, asset, start).sw;
     expect(Math.abs(a.x - b.x) * k).toBeLessThan(0.5);
     expect(Math.abs(a.y - b.y) * k).toBeLessThan(0.5);
+  });
+});
+
+describe('below fill (feature 004, T002)', () => {
+  const tall = cell(100, 300);
+  const landscape = { width: 400, height: 200 };
+
+  it('zoomMin is the zoom at which the whole photo fits', () => {
+    expect(zoomMin(tall, landscape)).toBeCloseTo(100 / 400 / (300 / 200), 12);
+    expect(zoomMin(cell(200, 100), { width: 400, height: 200 })).toBe(1);
+  });
+
+  it('at zoom ≥ 1 the photo covers the cell and src matches frameImage', () => {
+    for (const f of [{}, { zoom: 2, focusX: 0.2 }, { zoom: 5, focusX: 0.9, focusY: 0.1 }]) {
+      const im = img(f);
+      const p = placeImage(tall, landscape, im);
+      expect(p.dest).toEqual({ x: 0, y: 0, w: 100, h: 300 });
+      expect(p.src).toEqual(frameImage(tall, landscape, im));
+    }
+  });
+
+  it('at fit the whole photo shows, centered, with gaps on the short axis', () => {
+    const p = placeImage(tall, landscape, img({ zoom: zoomMin(tall, landscape) }));
+    expect(p.src.sx).toBeCloseTo(0, 9);
+    expect(p.src.sy).toBeCloseTo(0, 9);
+    expect(p.src.sw).toBeCloseTo(400, 9);
+    expect(p.src.sh).toBeCloseTo(200, 9);
+    expect(p.dest.w).toBeCloseTo(100, 9);
+    expect(p.dest.h).toBeCloseTo(50, 9);
+    expect(p.dest.y).toBeCloseTo(125, 9);
+  });
+
+  it('panning below fill stays inside on the short axis and covers on the long one', () => {
+    let im = img({ zoom: 0.5 });
+    for (const [dx, dy] of [[0, 1000], [0, -1000], [1000, 0], [-1000, 0], [37, -12]]) {
+      im = panBy(im, dx!, dy!, tall, landscape);
+      const p = placeImage(tall, landscape, im);
+      const Dw = landscape.width * p.scale;
+      const Dh = landscape.height * p.scale;
+      expect(Dh).toBeLessThan(300);
+      expect(p.y0).toBeGreaterThanOrEqual(-1e-9);
+      expect(p.y0 + Dh).toBeLessThanOrEqual(300 + 1e-9);
+      if (Dw >= 100) {
+        expect(p.x0).toBeLessThanOrEqual(1e-9);
+        expect(p.x0 + Dw).toBeGreaterThanOrEqual(100 - 1e-9);
+      }
+    }
+  });
+
+  it('snaps to exactly fill when close', () => {
+    const center = { x: 50, y: 150 };
+    expect(zoomAt(img(), 0.97, center, tall, landscape).zoom).toBe(1);
+    expect(zoomAt(img(), 1.04, center, tall, landscape).zoom).toBe(1);
+    expect(zoomAt(img(), 0.9, center, tall, landscape).zoom).toBeCloseTo(0.9, 12);
+  });
+
+  it('never leaves [fit, ZOOM_MAX]', () => {
+    const center = { x: 50, y: 150 };
+    expect(zoomAt(img(), 0.0001, center, tall, landscape).zoom).toBeCloseTo(zoomMin(tall, landscape), 12);
+    expect(zoomAt(img(), 1e6, center, tall, landscape).zoom).toBe(8);
+  });
+
+  it('zoomTo sets an absolute zoom around the center', () => {
+    const im = zoomTo(img(), 0.5, tall, landscape);
+    expect(im.zoom).toBeCloseTo(0.5, 12);
+    expect(im.focusX).toBeCloseTo(0.5, 12);
+    expect(im.focusY).toBeCloseTo(0.5, 12);
+  });
+
+  it('shows a stored zoom below the new fit at fit', () => {
+    expect(effectiveZoom(tall, landscape, 0.01)).toBeCloseTo(zoomMin(tall, landscape), 12);
   });
 });

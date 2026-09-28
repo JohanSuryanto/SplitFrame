@@ -5,6 +5,7 @@ import styles from './CellMenu.module.css';
 interface CellMenuProps {
   left: number;
   top: number;
+  onAdjust: () => void;
   onReplace: () => void;
   onUseSample: () => void;
   onRemove: () => void;
@@ -12,8 +13,8 @@ interface CellMenuProps {
   onClose: () => void;
 }
 
-/** Replace / Remove / Reset position for one photo (FR-024). Escape or a click outside closes it. */
-export function CellMenu({ left, top, onReplace, onUseSample, onRemove, onReset, onClose }: CellMenuProps) {
+/** Adjust… / Replace / Remove / Reset position for one photo (FR-024, feature 004 FR-302). Escape or a click outside closes it. */
+export function CellMenu({ left, top, onAdjust, onReplace, onUseSample, onRemove, onReset, onClose }: CellMenuProps) {
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -57,6 +58,7 @@ export function CellMenu({ left, top, onReplace, onUseSample, onRemove, onReset,
 
   return (
     <div ref={ref} {...{ [NO_GESTURE_ATTR]: '' }} className={styles.menu} style={{ left, top }} role="menu" aria-label="Photo options">
+      {item('Adjust…', onAdjust)}
       {item('Replace', onReplace)}
       {item('Use a sample…', onUseSample)}
       {item('Reset position', onReset)}

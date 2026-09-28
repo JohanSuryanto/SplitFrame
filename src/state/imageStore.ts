@@ -85,10 +85,23 @@ export function getAsset(id: string): ImageAsset | undefined {
   return assets.get(id);
 }
 
-/** Frees every asset that no undo, present or redo state refers to. */
+/** Assets the Adjust popup is framing, not in the history until Done (feature 004, research P7). */
+const held = new Set<string>();
+
+/** Protects an asset that isn't in the history yet (the Adjust popup's photo) from releaseUnreferenced. */
+export function holdAsset(id: string): void {
+  held.add(id);
+}
+
+/** Ends holdAsset; the asset is freed on the next releaseUnreferenced if nothing refers to it. */
+export function dropHeld(id: string): void {
+  held.delete(id);
+}
+
+/** Frees every asset that no undo, present or redo state refers to, except held ones. */
 export function releaseUnreferenced(referenced: Set<string>): void {
   for (const [id, asset] of assets) {
-    if (referenced.has(id)) continue;
+    if (referenced.has(id) || held.has(id)) continue;
     URL.revokeObjectURL(asset.url);
     asset.bitmap.close();
     assets.delete(id);

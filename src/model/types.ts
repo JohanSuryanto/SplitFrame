@@ -16,7 +16,7 @@ export type Direction = 'horizontal' | 'vertical';
 export interface CellImage {
   /** Must exist in the image store. */
   assetId: string;
-  /** ≥ 1, where 1 means the photo just covers the cell. Upper limit ZOOM_MAX. */
+  /** > 0: 1 means the photo just covers the cell; below 1 zooms out toward fit (feature 004). Upper limit ZOOM_MAX. */
   zoom: number;
   /** 0–1: the image point shown at the cell's center, clamped when the frame is derived. */
   focusX: number;

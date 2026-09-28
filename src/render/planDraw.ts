@@ -1,6 +1,6 @@
 // The collage as a list of drawing steps. Pure: the same plan drives the Preview and the export,
 // and it can be tested without a canvas (research R11, R22).
-import { frameImage, type SourceRect } from '../model/frame';
+import { placeImage, type SourceRect } from '../model/frame';
 import { cellsInReadingOrder } from '../model/layout';
 import { dividerLinesPx, layoutPixels, styleScale } from '../model/geometry';
 import type { Doc, NRect, Pt, Size } from '../model/types';
@@ -28,7 +28,16 @@ export function planDraw(
     const image = images.get(cell.cellId);
     const asset = image && assets(image.assetId);
     // Empty cells (or photos no longer loaded) just show the background (FR-033).
-    if (image && asset) ops.push({ op: 'image', assetId: image.assetId, src: frameImage(cell, asset, image), dest: rect });
+    if (image && asset) {
+      // Zoomed out below fill, the photo covers only part of the cell; the rest shows the background.
+      const p = placeImage(cell, asset, image);
+      ops.push({
+        op: 'image',
+        assetId: image.assetId,
+        src: p.src,
+        dest: { x: rect.x + p.dest.x, y: rect.y + p.dest.y, w: p.dest.w, h: p.dest.h },
+      });
+    }
     ops.push({ op: 'restore' });
   }
 

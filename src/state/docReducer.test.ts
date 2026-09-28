@@ -48,3 +48,21 @@ describe('setImages', () => {
     expect(docReducer(doc, { type: 'setImages', entries: [] })).toBe(doc);
   });
 });
+
+describe('setImage framing (feature 004, T004)', () => {
+  const framingOf = (d: ReturnType<typeof initialDoc>) => {
+    const c = cellsInReadingOrder(d.layout)[0]!;
+    return { zoom: c.image?.zoom, focusX: c.image?.focusX, focusY: c.image?.focusY };
+  };
+
+  it('applies the framing chosen in Adjust', () => {
+    const d = initialDoc();
+    const next = docReducer(d, { type: 'setImage', cellId: d.layout.id, assetId: 'a', framing: { zoom: 0.6, focusX: 0.3, focusY: 0.7 } });
+    expect(framingOf(next)).toEqual({ zoom: 0.6, focusX: 0.3, focusY: 0.7 });
+  });
+
+  it('uses the default fill without a framing', () => {
+    const d = initialDoc();
+    expect(framingOf(docReducer(d, { type: 'setImage', cellId: d.layout.id, assetId: 'a' }))).toEqual({ zoom: 1, focusX: 0.5, focusY: 0.5 });
+  });
+});

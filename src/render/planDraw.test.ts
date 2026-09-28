@@ -103,3 +103,23 @@ describe('planDraw (contract case 7, T026)', () => {
     expect(strokes).toEqual([{ op: 'stroke', points: [{ x: 0, y: 0 }, { x: 1080, y: 1920 }], width: 20, color: DEFAULT_STYLE.color }]);
   });
 });
+
+describe('planDraw below fill (feature 004, T003)', () => {
+  it('draws a zoomed-out photo into part of its cell, over the background', () => {
+    const layout: LayoutNode = { ...(twoCols('photo') as Extract<LayoutNode, { type: 'split' }>) };
+    const a = layout.type === 'split' && layout.a.type === 'cell' ? layout.a : undefined;
+    if (!a?.image) throw new Error('fixture');
+    a.image = { ...a.image, zoom: 0.4 };
+    const ops = planDraw(doc(layout), assets, { w: 1080, h: 1920 });
+    expect(ops[0]!.op).toBe('fill');
+    const image = ops.find((o): o is Extract<DrawOp, { op: 'image' }> => o.op === 'image');
+    const cellRect = clips(ops)[0]!.rect;
+    expect(image).toBeDefined();
+    const d = image!.dest;
+    expect(d.x).toBeGreaterThanOrEqual(cellRect.x - 1e-9);
+    expect(d.y).toBeGreaterThanOrEqual(cellRect.y - 1e-9);
+    expect(d.x + d.w).toBeLessThanOrEqual(cellRect.x + cellRect.w + 1e-9);
+    expect(d.y + d.h).toBeLessThanOrEqual(cellRect.y + cellRect.h + 1e-9);
+    expect(d.w < cellRect.w - 1e-6 || d.h < cellRect.h - 1e-6).toBe(true);
+  });
+});

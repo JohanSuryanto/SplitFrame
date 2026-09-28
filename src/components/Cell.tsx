@@ -9,7 +9,7 @@ import {
   type PointerEvent,
 } from 'react';
 import { NO_GESTURE_ATTR, useGestures } from '../input/useGestures';
-import { frameImage, panBy, zoomAt } from '../model/frame';
+import { panBy, placeImage, zoomAt } from '../model/frame';
 import { polygonCentroid } from '../model/polygon';
 import type { CellImage, PxCell } from '../model/types';
 import type { DocAction } from '../state/docReducer';
@@ -80,7 +80,8 @@ function CellView({ px, index, image, mode, actions, swapTarget, swapSource, act
     actions.preview({ type: 'setFraming', cellId: px.cellId, patch: { zoom: next.zoom, focusX: next.focusX, focusY: next.focusY } });
   };
 
-  // Pan, pinch, wheel zoom and double-tap reset for photos, in Arrange mode only (FR-023, FR-024).
+  // Pan, pinch, wheel zoom and double-tap reset for photos, in Arrange mode only (FR-023, FR-024;
+  // zoom below fill and snapping per feature 004 FR-318).
   useGestures(
     ref,
     {
@@ -182,12 +183,12 @@ function CellView({ px, index, image, mode, actions, swapTarget, swapSource, act
   let imgStyle: CSSProperties | undefined;
   if (image && asset) {
     // Shaped cells frame the photo against their bounding box, so it covers the whole shape.
-    const s = frameImage(px, asset, image);
-    const k = px.w / s.sw;
+    // Zoomed out below fill it covers only part of the box; the surface's background shows around it.
+    const p = placeImage(px, asset, image);
     imgStyle = {
-      width: asset.width * k,
-      height: asset.height * k,
-      transform: `translate(${-s.sx * k}px, ${-s.sy * k}px)`,
+      width: asset.width * p.scale,
+      height: asset.height * p.scale,
+      transform: `translate(${p.x0}px, ${p.y0}px)`,
     };
   }
 
