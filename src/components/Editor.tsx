@@ -17,7 +17,7 @@ import { SamplePicker } from './SamplePicker';
 import { Divider, RemoveHandle } from './Divider';
 import { LineLayer } from './LineLayer';
 import { StrokeOverlay } from './StrokeOverlay';
-import { MarkLayer } from './MarkLayer';
+import { MarkLayer, type MarkTarget } from './MarkLayer';
 import styles from './Editor.module.css';
 
 const MARGIN = 16;
@@ -67,8 +67,8 @@ interface EditorProps {
   onPreview: () => void;
   /** Draw the SplitFrame credit on the canvas: only while the Export panel is open and it is on (003 FR-215). */
   showCredit: boolean;
-  /** The Watermark panel is open: the user's watermark can be dragged (feature 005). */
-  editWatermark: boolean;
+  /** Which mark a drag on the canvas moves: set while the Watermark panel is open (features 005, 006). */
+  markTarget: MarkTarget;
   /** Frees photos no undo step refers to (a photo cancelled in the Adjust popup). */
   releaseUnused: () => void;
 }
@@ -523,8 +523,9 @@ export function Editor(props: EditorProps) {
           canvas={doc.canvas}
           size={previewSize}
           mark={doc.watermark}
+          signature={doc.signature}
           showCredit={props.showCredit}
-          interactive={props.editWatermark && doc.watermark.text.trim() !== ''}
+          target={props.markTarget}
           commit={commit}
           preview={props.preview}
           endGesture={props.endGesture}

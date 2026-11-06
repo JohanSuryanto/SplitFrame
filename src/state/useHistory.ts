@@ -64,7 +64,10 @@ export function historyAssets(h: History): Set<string> {
   const out = new Set<string>();
   const docs = [...h.past, h.present, ...h.future];
   if (h.gestureBase) docs.push(h.gestureBase);
-  for (const d of docs) for (const id of referencedAssets(d.layout)) out.add(id);
+  for (const d of docs) {
+    for (const id of referencedAssets(d.layout)) out.add(id);
+    if (d.signature?.picture.kind === 'image') out.add(d.signature.picture.assetId);
+  }
   return out;
 }
 

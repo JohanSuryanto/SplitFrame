@@ -16,6 +16,7 @@ function doc(width: number, height: number, style: Partial<Style> = {}, layout: 
     layout,
     style: { ...DEFAULT_STYLE, ...style },
     watermark: DEFAULT_WATERMARK,
+    signature: null,
   };
 }
 

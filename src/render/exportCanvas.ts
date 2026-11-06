@@ -1,8 +1,9 @@
 // Full-resolution export and download, entirely on the device (FR-031 to FR-035, FR-102).
-import type { Doc } from '../model/types';
+import type { Doc, Signature } from '../model/types';
+import { getAsset } from '../state/imageStore';
 import type { ExportSettings } from '../state/uiState';
 import { exportFilename } from './filename';
-import { renderCollage } from './renderCollage';
+import { drawSignature, renderCollage } from './renderCollage';
 
 /** iOS Safari refuses canvases larger than this many pixels (research R13). */
 const WEBKIT_MAX_AREA = 16_777_216;
@@ -89,4 +90,27 @@ export function sameExportInput(
 /** Renders the collage and downloads it. Nothing is downloaded on failure. */
 export async function exportCollage(doc: Doc, settings: ExportSettings): Promise<void> {
   downloadFile(await renderExportFile(doc, settings));
+}
+
+/** Width of a downloaded drawn signature; drawn strokes are vectors, so any size is sharp. */
+const SIGNATURE_PX = 1600;
+
+/**
+ * The signature alone as a transparent PNG, upright and at full strength, in its ink color (or original
+ * colors), for use as a digital signature elsewhere. Uploaded signatures keep their stored resolution.
+ */
+export async function downloadSignature(sig: Signature): Promise<void> {
+  const pic = sig.picture;
+  const w = pic.kind === 'image' ? (getAsset(pic.assetId)?.width ?? SIGNATURE_PX) : SIGNATURE_PX;
+  const h = Math.max(1, Math.round(w / pic.aspect));
+  const c = document.createElement('canvas');
+  c.width = w;
+  c.height = h;
+  const ctx = c.getContext('2d');
+  if (!ctx) throw new ExportError('failed');
+  // Fill the whole canvas: the signature's width is `size` × the short side.
+  drawSignature(ctx, { ...sig, x: 0.5, y: 0.5, rotation: 0, opacity: 1, size: w / Math.min(w, h) }, { width: w, height: h }, { w, h });
+  const blob = await new Promise<Blob | null>((resolve) => c.toBlob(resolve, 'image/png'));
+  if (!blob || blob.size === 0) throw new ExportError('failed');
+  downloadFile(new File([blob], exportFilename(new Date(), 'png', 'signature'), { type: 'image/png' }));
 }

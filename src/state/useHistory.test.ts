@@ -1,8 +1,8 @@
 // @vitest-environment jsdom
 import { act, renderHook } from '@testing-library/react';
-import { HISTORY_CAP, useHistory } from './useHistory';
+import { HISTORY_CAP, historyAssets, useHistory } from './useHistory';
 import type { Doc } from '../model/types';
-import { DEFAULT_STYLE, DEFAULT_WATERMARK } from '../model/types';
+import { DEFAULT_SIGNATURE_PLACEMENT, DEFAULT_STYLE, DEFAULT_WATERMARK } from '../model/types';
 
 type Action = { type: 'gap'; value: number } | { type: 'image'; assetId: string | null };
 
@@ -26,6 +26,7 @@ const initial: Doc = {
   layout: { type: 'cell', id: 'c' },
   style: DEFAULT_STYLE,
   watermark: DEFAULT_WATERMARK,
+  signature: null,
 };
 
 const setup = () => renderHook(() => useHistory(initial, reducer));
@@ -119,5 +120,16 @@ describe('useHistory', () => {
     act(() => result.current.commit({ type: 'image', assetId: null }));
     // a3 was only in the future, which a new commit clears.
     expect(result.current.referencedAssetsInHistory()).toEqual(new Set(['a1', 'a2']));
+  });
+});
+
+describe('historyAssets with a signature (feature 006, T008)', () => {
+  it('counts signature image assets in past, present and future', () => {
+    const sig = (assetId: string): Doc => ({
+      ...initial,
+      signature: { ...DEFAULT_SIGNATURE_PLACEMENT, picture: { kind: 'image', assetId, aspect: 2 } },
+    });
+    const ids = historyAssets({ past: [sig('p')], present: sig('n'), future: [sig('f')] });
+    expect([...ids].sort()).toEqual(['f', 'n', 'p']);
   });
 });

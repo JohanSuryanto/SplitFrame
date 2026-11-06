@@ -100,11 +100,50 @@ export interface Watermark {
   repeat: boolean;
 }
 
+/** The signature's picture (feature 006). */
+export type SignaturePicture =
+  | {
+      kind: 'strokes';
+      /** Points 0–1 in the signature box; ≥ 1 stroke, ≥ 1 point each. */
+      strokes: Pt[][];
+      /** Box width ÷ height, > 0. */
+      aspect: number;
+      /** Pen width ÷ box width, > 0. */
+      lineWidth: number;
+    }
+  | {
+      kind: 'image';
+      /** Must exist in imageStore; cleaned PNG with transparent paper. */
+      assetId: string;
+      /** Box width ÷ height, > 0. */
+      aspect: number;
+    };
+
+/** The user's signature (feature 006). Fractions are of the export canvas. */
+export interface Signature {
+  picture: SignaturePicture;
+  /** Image only: draw original colors instead of the ink color. */
+  keepColors: boolean;
+  /** Ink, '#RRGGBB', uppercase. */
+  color: string;
+  /** 0.1–1. */
+  opacity: number;
+  /** Signature WIDTH ÷ canvas short side, 0.1–0.8. */
+  size: number;
+  /** Degrees, −90–90; |r| ≤ 3 snaps to 0. */
+  rotation: number;
+  /** Center ÷ canvas width, 0–1. */
+  x: number;
+  /** Center ÷ canvas height, 0–1. */
+  y: number;
+}
+
 export interface Doc {
   canvas: CanvasSpec;
   layout: LayoutNode;
   style: Style;
   watermark: Watermark;
+  signature: Signature | null;
 }
 
 /** Normalized rectangle, 0–1 in content-area units. */
@@ -162,6 +201,16 @@ export const WATERMARK_RANGES = { opacity: [0.1, 1], size: [0.02, 0.2], rotation
 export const WATERMARK_MAX_CHARS = 100;
 export const ROTATION_SNAP = 3;
 export const REPEAT_ROTATION = -30;
+export const DEFAULT_SIGNATURE_PLACEMENT: Omit<Signature, 'picture'> = {
+  keepColors: false,
+  color: '#111111',
+  opacity: 1,
+  size: 0.35,
+  rotation: 0,
+  x: 0.75,
+  y: 0.85,
+};
+export const SIGNATURE_RANGES = { opacity: [0.1, 1], size: [0.1, 0.8], rotation: [-90, 90] } as const;
 export const ZOOM_MAX = 8;
 export const REF_SHORT_SIDE = 1080;
 export const STYLE_RANGES = { gap: [0, 40], radius: [0, 100], padding: [0, 100] } as const;

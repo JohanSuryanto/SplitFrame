@@ -28,7 +28,7 @@ export function maxSideFor(canvas: Pick<CanvasSpec, 'width' | 'height'>): number
   return Math.max(canvas.width, canvas.height, 2048);
 }
 
-function makeCanvas(w: number, h: number): OffscreenCanvas | HTMLCanvasElement {
+export function makeCanvas(w: number, h: number): OffscreenCanvas | HTMLCanvasElement {
   if (typeof OffscreenCanvas !== 'undefined') return new OffscreenCanvas(w, h);
   const c = document.createElement('canvas');
   c.width = w;
@@ -79,6 +79,15 @@ export async function loadImage(file: File, maxSide: number): Promise<ImageAsset
   } finally {
     decoded.close();
   }
+}
+
+/** Stores a canvas as a PNG asset, keeping transparency (feature 006: a cleaned-up signature). */
+export async function addAssetFromCanvas(canvas: OffscreenCanvas | HTMLCanvasElement): Promise<ImageAsset> {
+  const blob = await toBlob(canvas, 'image/png');
+  const bitmap = await createImageBitmap(blob);
+  const asset: ImageAsset = { id: newId(), url: URL.createObjectURL(blob), bitmap, width: canvas.width, height: canvas.height };
+  assets.set(asset.id, asset);
+  return asset;
 }
 
 export function getAsset(id: string): ImageAsset | undefined {

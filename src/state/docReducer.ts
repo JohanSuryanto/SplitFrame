@@ -19,8 +19,10 @@ import {
   CUSTOM_SIZE_RANGE,
   DEFAULT_STYLE,
   DEFAULT_WATERMARK,
+  DEFAULT_SIGNATURE_PLACEMENT,
   REPEAT_ROTATION,
   ROTATION_SNAP,
+  SIGNATURE_RANGES,
   WATERMARK_MAX_CHARS,
   WATERMARK_RANGES,
   STYLE_RANGES,
@@ -30,6 +32,8 @@ import {
   type Doc,
   type LayoutNode,
   type Pt,
+  type Signature,
+  type SignaturePicture,
   type Style,
   type Watermark,
 } from '../model/types';
@@ -54,6 +58,10 @@ export type DocAction =
   | { type: 'setStyle'; patch: Partial<Style> }
   /** The user's own watermark (feature 005); every field is clamped here. */
   | { type: 'setWatermark'; patch: Partial<Watermark> }
+  /** The signature (feature 006): create it with the default placement, or swap its picture and keep the rest. */
+  | { type: 'setSignaturePicture'; picture: SignaturePicture; keepColors?: boolean }
+  | { type: 'setSignature'; patch: Partial<Omit<Signature, 'picture'>> }
+  | { type: 'removeSignature' }
   | { type: 'clearLayout' }
   | { type: 'newCollage' };
 
@@ -63,6 +71,7 @@ export function initialDoc(): Doc {
     layout: singleCell(),
     style: DEFAULT_STYLE,
     watermark: DEFAULT_WATERMARK,
+    signature: null,
   };
 }
 
@@ -82,6 +91,35 @@ export function removeDividerWithReport(doc: Doc, splitId: string): RemoveResult
 export function hasWork(doc: Doc): boolean {
   return doc.layout.type !== 'cell' || doc.layout.image !== undefined;
 }
+
+interface Placement {
+  color: string;
+  opacity: number;
+  size: number;
+  rotation: number;
+  x: number;
+  y: number;
+}
+
+type Range = readonly [number, number];
+const clamp = (v: number, [lo, hi]: Range) => Math.min(Math.max(v, lo), hi);
+
+/** Color, opacity, size, rotation (with the ±3° snap) and position, shared by the watermark and signature. */
+function clampPlacement<T extends Placement>(cur: T, p: Partial<T>, ranges: { opacity: Range; size: Range; rotation: Range }): T {
+  const next: T = { ...cur };
+  if (p.color !== undefined && /^#[0-9A-Fa-f]{6}$/.test(p.color)) next.color = p.color.toUpperCase();
+  if (p.opacity !== undefined) next.opacity = clamp(p.opacity, ranges.opacity);
+  if (p.size !== undefined) next.size = clamp(p.size, ranges.size);
+  if (p.rotation !== undefined) {
+    const r = clamp(p.rotation, ranges.rotation);
+    next.rotation = Math.abs(r) <= ROTATION_SNAP ? 0 : r;
+  }
+  if (p.x !== undefined) next.x = clamp(p.x, [0, 1]);
+  if (p.y !== undefined) next.y = clamp(p.y, [0, 1]);
+  return next;
+}
+
+const sameFields = <T extends object>(a: T, b: T) => (Object.keys(a) as (keyof T)[]).every((k) => a[k] === b[k]);
 
 export function docReducer(doc: Doc, action: DocAction): Doc {
   switch (action.type) {
@@ -157,26 +195,31 @@ export function docReducer(doc: Doc, action: DocAction): Doc {
     case 'setWatermark': {
       const cur = doc.watermark;
       const p = action.patch;
-      const clamp = (v: number, [lo, hi]: readonly [number, number]) => Math.min(Math.max(v, lo), hi);
-      const next: Watermark = { ...cur };
+      const next = clampPlacement(cur, p, WATERMARK_RANGES);
       if (p.text !== undefined) next.text = p.text.slice(0, WATERMARK_MAX_CHARS);
-      if (p.color !== undefined && /^#[0-9A-Fa-f]{6}$/.test(p.color)) next.color = p.color.toUpperCase();
-      if (p.opacity !== undefined) next.opacity = clamp(p.opacity, WATERMARK_RANGES.opacity);
-      if (p.size !== undefined) next.size = clamp(p.size, WATERMARK_RANGES.size);
-      if (p.rotation !== undefined) {
-        const r = clamp(p.rotation, WATERMARK_RANGES.rotation);
-        next.rotation = Math.abs(r) <= ROTATION_SNAP ? 0 : r;
-      }
-      if (p.x !== undefined) next.x = clamp(p.x, [0, 1]);
-      if (p.y !== undefined) next.y = clamp(p.y, [0, 1]);
       if (p.repeat !== undefined) {
         // Turning Repeat on with an upright mark tilts it, the usual look for an ID-copy stamp.
         if (p.repeat && !cur.repeat && next.rotation === 0) next.rotation = REPEAT_ROTATION;
         next.repeat = p.repeat;
       }
-      const same = (Object.keys(next) as (keyof Watermark)[]).every((k) => next[k] === cur[k]);
-      return same ? doc : { ...doc, watermark: next };
+      return sameFields(next, cur) ? doc : { ...doc, watermark: next };
     }
+    case 'setSignaturePicture': {
+      const cur = doc.signature;
+      const keepColors = action.keepColors ?? cur?.keepColors ?? false;
+      if (cur && cur.picture === action.picture && cur.keepColors === keepColors) return doc;
+      const base = cur ?? { ...DEFAULT_SIGNATURE_PLACEMENT, picture: action.picture };
+      return { ...doc, signature: { ...base, picture: action.picture, keepColors } };
+    }
+    case 'setSignature': {
+      const cur = doc.signature;
+      if (!cur) return doc;
+      const next = clampPlacement<Signature>(cur, action.patch, SIGNATURE_RANGES);
+      if (action.patch.keepColors !== undefined) next.keepColors = action.patch.keepColors;
+      return sameFields(next, cur) ? doc : { ...doc, signature: next };
+    }
+    case 'removeSignature':
+      return doc.signature ? { ...doc, signature: null } : doc;
     case 'newCollage':
       // Start again: one empty cell; the canvas shape and style are kept for the next collage.
       return hasWork(doc) ? { ...doc, layout: singleCell() } : doc;

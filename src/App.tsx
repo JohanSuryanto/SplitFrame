@@ -8,7 +8,7 @@ import { PreviewDialog } from './components/PreviewDialog';
 import { Sheet } from './components/Sheet';
 import { StylePanel } from './components/StylePanel';
 import { Toasts } from './components/Toasts';
-import { WatermarkPanel } from './components/WatermarkPanel';
+import { WatermarkPanel, type MarkTab } from './components/WatermarkPanel';
 import { TopBar } from './components/TopBar';
 import { docReducer, hasWork, initialDoc } from './state/docReducer';
 import { releaseUnreferenced } from './state/imageStore';
@@ -25,6 +25,8 @@ export default function App() {
   const ui = useUiState();
   const { referencedAssetsInHistory } = history;
   const [panel, setPanel] = useState<PanelName | null>(null);
+  /** The Watermark panel's tab; it also decides which mark a drag on the canvas moves (feature 006). */
+  const [markTab, setMarkTab] = useState<MarkTab>('text');
   const closePanel = useCallback(() => setPanel(null), []);
   const togglePanel = (p: PanelName) => setPanel((cur) => (cur === p ? null : p));
 
@@ -125,7 +127,17 @@ export default function App() {
           pushToast={ui.pushToast}
           onPreview={openPreview}
           showCredit={panel === 'export' && ui.ui.exportSettings.watermark}
-          editWatermark={panel === 'watermark'}
+          markTarget={
+            panel !== 'watermark'
+              ? null
+              : markTab === 'text'
+                ? history.doc.watermark.text.trim()
+                  ? 'text'
+                  : null
+                : history.doc.signature
+                  ? 'signature'
+                  : null
+          }
           releaseUnused={() => releaseUnreferenced(referencedAssetsInHistory())}
         />
       </main>
@@ -138,7 +150,16 @@ export default function App() {
               <StylePanel doc={history.doc} commit={history.commit} preview={history.preview} endGesture={history.endGesture} />
             )}
             {panel === 'watermark' && (
-              <WatermarkPanel doc={history.doc} commit={history.commit} preview={history.preview} endGesture={history.endGesture} />
+              <WatermarkPanel
+                doc={history.doc}
+                commit={history.commit}
+                preview={history.preview}
+                endGesture={history.endGesture}
+                tab={markTab}
+                onTab={setMarkTab}
+                pushToast={ui.pushToast}
+                releaseUnused={() => releaseUnreferenced(referencedAssetsInHistory())}
+              />
             )}
             {panel === 'export' && (
               <ExportPanel doc={history.doc} settings={ui.ui.exportSettings} onChange={ui.setExportSettings} pushToast={ui.pushToast} />

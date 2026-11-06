@@ -19,6 +19,7 @@ const doc = (layout: LayoutNode, style: Partial<Doc['style']> = {}): Doc => ({
   layout,
   style: { ...DEFAULT_STYLE, gap: 20, padding: 0, ...style },
   watermark: DEFAULT_WATERMARK,
+  signature: null,
 });
 
 const assets = (id: string) => (id === 'photo' ? { width: 4000, height: 3000 } : undefined);
