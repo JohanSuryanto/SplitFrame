@@ -1,0 +1,24 @@
+/* Above photos and lines, below divider handles and menus; never catches pointer input. */
+.layer {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+}
+
+.canvas {
+  display: block;
+}
+
+/* Watermark panel open: above dividers too, so every drag on the canvas moves the mark. */
+.interactive {
+  z-index: 7;
+  pointer-events: auto;
+  touch-action: none;
+  cursor: move;
+}
+
+.interactive:focus-visible {
+  outline: 2px solid var(--text);
+  outline-offset: 2px;
+}

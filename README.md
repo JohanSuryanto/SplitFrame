@@ -17,7 +17,8 @@ SplitFrame runs entirely in your browser. There is no backend, no account, no an
 - Style: gap, corner radius, padding and color.
 - Preview, then download as PNG or JPG at full resolution: `splitframe-YYYYMMDD-HHmm.png`.
 - **Share to Story**: send the finished image straight to Instagram (Story) or WhatsApp (My status) through your device's share menu, without saving it first. See [Share to Story](#share-to-story).
-- **Watermark**: a small “SplitFrame · splitframe.johansuryanto.dev” credit at the bottom of exported and shared images, on by default; switch it off in Export.
+- **Watermark**: stamp your own text on the image, for example “For verification by Bank X only” on a photo of your ID card before you send it. Drag it anywhere, set its color, opacity, size and rotation, add today's date in one tap, or switch on **Repeat** to cover the whole image so it can't be cropped out. Like everything else, it never leaves your device.
+- **SplitFrame credit**: a small “SplitFrame · splitframe.johansuryanto.dev” credit at the bottom of exported and shared images, on by default; switch it off in Export or Preview.
 - Undo and redo everything (Ctrl/Cmd+Z, Ctrl/Cmd+Shift+Z), last 100 changes.
 - Works with mouse, touch and pen; keyboard reachable.
 

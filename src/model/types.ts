@@ -80,10 +80,31 @@ export interface Style {
   padding: number;
 }
 
+/** The user's own text watermark (feature 005). Fractions are of the export canvas. */
+export interface Watermark {
+  /** '' = no watermark; ≤ 100 chars. */
+  text: string;
+  /** '#RRGGBB', uppercase. */
+  color: string;
+  /** 0.1–1. */
+  opacity: number;
+  /** Text height ÷ canvas short side, 0.02–0.2. */
+  size: number;
+  /** Degrees, −90–90; |r| ≤ 3 snaps to 0. */
+  rotation: number;
+  /** Text center ÷ canvas width, 0–1 (Repeat: pattern offset). */
+  x: number;
+  /** Text center ÷ canvas height, 0–1. */
+  y: number;
+  /** Tile the text across the whole canvas. */
+  repeat: boolean;
+}
+
 export interface Doc {
   canvas: CanvasSpec;
   layout: LayoutNode;
   style: Style;
+  watermark: Watermark;
 }
 
 /** Normalized rectangle, 0–1 in content-area units. */
@@ -127,6 +148,20 @@ export interface Size {
 }
 
 export const DEFAULT_STYLE: Style = { gap: 8, color: '#FFFFFF', radius: 0, padding: 0 };
+export const DEFAULT_WATERMARK: Watermark = {
+  text: '',
+  color: '#FFFFFF',
+  opacity: 0.5,
+  size: 0.06,
+  rotation: 0,
+  x: 0.5,
+  y: 0.5,
+  repeat: false,
+};
+export const WATERMARK_RANGES = { opacity: [0.1, 1], size: [0.02, 0.2], rotation: [-90, 90] } as const;
+export const WATERMARK_MAX_CHARS = 100;
+export const ROTATION_SNAP = 3;
+export const REPEAT_ROTATION = -30;
 export const ZOOM_MAX = 8;
 export const REF_SHORT_SIDE = 1080;
 export const STYLE_RANGES = { gap: [0, 40], radius: [0, 100], padding: [0, 100] } as const;

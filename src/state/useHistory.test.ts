@@ -2,7 +2,7 @@
 import { act, renderHook } from '@testing-library/react';
 import { HISTORY_CAP, useHistory } from './useHistory';
 import type { Doc } from '../model/types';
-import { DEFAULT_STYLE } from '../model/types';
+import { DEFAULT_STYLE, DEFAULT_WATERMARK } from '../model/types';
 
 type Action = { type: 'gap'; value: number } | { type: 'image'; assetId: string | null };
 
@@ -25,6 +25,7 @@ const initial: Doc = {
   canvas: { preset: '9:16', width: 1080, height: 1920 },
   layout: { type: 'cell', id: 'c' },
   style: DEFAULT_STYLE,
+  watermark: DEFAULT_WATERMARK,
 };
 
 const setup = () => renderHook(() => useHistory(initial, reducer));

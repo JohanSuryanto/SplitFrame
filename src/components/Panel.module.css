@@ -1,4 +1,4 @@
-/* Shared building blocks for the Layout, Style and Export sheets. */
+/* Shared building blocks for the Layout, Style, Watermark and Export sheets. */
 
 .section + .section {
   margin-top: 18px;
@@ -394,4 +394,31 @@
     background: transparent;
     color: var(--text);
   }
+}
+
+/* Watermark panel: a full-width text box with a button beside it. */
+.textRow {
+  display: flex;
+  gap: 8px;
+}
+
+.textInput {
+  flex: 1;
+  min-width: 0;
+  height: 40px;
+  padding: 0 12px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface);
+  color: var(--text);
+  font: inherit;
+  font-size: 16px; /* 16 px keeps iOS Safari from zooming in on focus */
+}
+
+.switchRow:disabled,
+.swatch:disabled,
+.colorInput:disabled,
+.range:disabled {
+  opacity: 0.4;
+  cursor: default;
 }

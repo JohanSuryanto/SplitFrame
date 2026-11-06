@@ -1,6 +1,6 @@
 import { frameImage } from '../model/frame';
 import { layoutPixels } from '../model/geometry';
-import { DEFAULT_STYLE, type Doc, type LayoutNode } from '../model/types';
+import { DEFAULT_STYLE, DEFAULT_WATERMARK, type Doc, type LayoutNode } from '../model/types';
 import { planDraw, type DrawOp } from './planDraw';
 
 const photo = (assetId: string) => ({ assetId, zoom: 1, focusX: 0.5, focusY: 0.5 });
@@ -18,6 +18,7 @@ const doc = (layout: LayoutNode, style: Partial<Doc['style']> = {}): Doc => ({
   canvas: { preset: '9:16', width: 1080, height: 1920 },
   layout,
   style: { ...DEFAULT_STYLE, gap: 20, padding: 0, ...style },
+  watermark: DEFAULT_WATERMARK,
 });
 
 const assets = (id: string) => (id === 'photo' ? { width: 4000, height: 3000 } : undefined);

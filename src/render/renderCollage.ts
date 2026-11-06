@@ -1,8 +1,10 @@
-// Executes a draw plan on a 2D canvas context, plus the optional watermark. Used by Preview (screen
-// size) and export (full size), never by the editor (FR-215).
-import type { Doc, Size } from '../model/types';
+// Executes a draw plan on a 2D canvas context, then the user's watermark (feature 005) and the optional
+// SplitFrame credit. Used by Preview (screen size) and export (full size); the editor draws only the
+// two marks, on its overlay (MarkLayer).
+import type { Doc, Size, Watermark } from '../model/types';
 import { getAsset } from '../state/imageStore';
 import { planDraw } from './planDraw';
+import { planTextMark } from './textMark';
 import { planWatermark, watermarkFont } from './watermark';
 
 type Ctx = CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D;
@@ -65,7 +67,31 @@ export function renderCollage(ctx: Ctx, doc: Doc, sizePx: Size, opts?: { waterma
     }
   }
 
+  drawTextMark(ctx, doc.watermark, doc.canvas, sizePx);
   if (opts?.watermark) drawWatermark(ctx, doc.canvas, sizePx);
+}
+
+/** Draws the user's watermark for an export canvas of this size onto a surface of sizePx (FR-512, FR-513). */
+export function drawTextMark(ctx: Ctx, mark: Watermark, canvas: { width: number; height: number }, sizePx: Size): void {
+  const op = planTextMark(mark, canvas, sizePx, (text, px) => {
+    ctx.font = watermarkFont(px);
+    return ctx.measureText(text).width;
+  });
+  if (!op) return;
+  ctx.save();
+  ctx.font = op.font;
+  ctx.fillStyle = op.color;
+  ctx.globalAlpha = op.alpha;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  const base = ctx.getTransform();
+  for (const p of op.points) {
+    ctx.translate(p.x, p.y);
+    ctx.rotate(op.angle);
+    ctx.fillText(op.text, 0, 0);
+    ctx.setTransform(base);
+  }
+  ctx.restore();
 }
 
 /** Draws the credit for an export canvas of this size onto a surface of sizePx (also the editor while Export is open). */

@@ -79,7 +79,7 @@ A user wants an image without any credit, for example for a personal album or a 
 
 **Setting**
 
-- **FR-209**: The Export panel MUST contain a Watermark on/off switch with a visible label and a short description (for example "Adds 'SplitFrame · splitframe.johansuryanto.dev' at the bottom").
+- **FR-209**: The Export panel MUST contain a Watermark on/off switch with a visible label and a short description (for example "Adds 'SplitFrame · splitframe.johansuryanto.dev' at the bottom"). *(Relabelled **SplitFrame credit** on 2026-11-06 by feature 005, FR-516, so it isn't confused with the user's own watermark.)*
 - **FR-209a**: Preview MUST also show a Watermark on/off switch next to its Share and Export actions, bound to the same setting as the Export panel. Changing it MUST redraw Preview at once, so users can compare with and without the credit before sharing. *(Added 2026-09-24 at the user's request.)*
 - **FR-210**: Watermark MUST be on at the start of every session and MUST NOT be remembered between sessions, in line with the base rule that nothing is saved between sessions.
 - **FR-211**: The Watermark setting MUST apply equally to Download, Share and Preview. For the same collage and settings, all three MUST show the same image.

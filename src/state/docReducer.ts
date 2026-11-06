@@ -18,6 +18,11 @@ import { applyPreset, CANVAS_PRESETS, type LayoutPresetKind } from '../model/pre
 import {
   CUSTOM_SIZE_RANGE,
   DEFAULT_STYLE,
+  DEFAULT_WATERMARK,
+  REPEAT_ROTATION,
+  ROTATION_SNAP,
+  WATERMARK_MAX_CHARS,
+  WATERMARK_RANGES,
   STYLE_RANGES,
   type CanvasPreset,
   type CellImage,
@@ -26,6 +31,7 @@ import {
   type LayoutNode,
   type Pt,
   type Style,
+  type Watermark,
 } from '../model/types';
 
 export type DocAction =
@@ -46,6 +52,8 @@ export type DocAction =
   | { type: 'resizeDivider'; splitId: string; coord: number }
   | { type: 'removeDivider'; splitId: string }
   | { type: 'setStyle'; patch: Partial<Style> }
+  /** The user's own watermark (feature 005); every field is clamped here. */
+  | { type: 'setWatermark'; patch: Partial<Watermark> }
   | { type: 'clearLayout' }
   | { type: 'newCollage' };
 
@@ -54,6 +62,7 @@ export function initialDoc(): Doc {
     canvas: { preset: '9:16', width: 1080, height: 1920 },
     layout: singleCell(),
     style: DEFAULT_STYLE,
+    watermark: DEFAULT_WATERMARK,
   };
 }
 
@@ -144,6 +153,29 @@ export function docReducer(doc: Doc, action: DocAction): Doc {
       }
       const same = (Object.keys(next) as (keyof Style)[]).every((k) => next[k] === doc.style[k]);
       return same ? doc : { ...doc, style: next };
+    }
+    case 'setWatermark': {
+      const cur = doc.watermark;
+      const p = action.patch;
+      const clamp = (v: number, [lo, hi]: readonly [number, number]) => Math.min(Math.max(v, lo), hi);
+      const next: Watermark = { ...cur };
+      if (p.text !== undefined) next.text = p.text.slice(0, WATERMARK_MAX_CHARS);
+      if (p.color !== undefined && /^#[0-9A-Fa-f]{6}$/.test(p.color)) next.color = p.color.toUpperCase();
+      if (p.opacity !== undefined) next.opacity = clamp(p.opacity, WATERMARK_RANGES.opacity);
+      if (p.size !== undefined) next.size = clamp(p.size, WATERMARK_RANGES.size);
+      if (p.rotation !== undefined) {
+        const r = clamp(p.rotation, WATERMARK_RANGES.rotation);
+        next.rotation = Math.abs(r) <= ROTATION_SNAP ? 0 : r;
+      }
+      if (p.x !== undefined) next.x = clamp(p.x, [0, 1]);
+      if (p.y !== undefined) next.y = clamp(p.y, [0, 1]);
+      if (p.repeat !== undefined) {
+        // Turning Repeat on with an upright mark tilts it, the usual look for an ID-copy stamp.
+        if (p.repeat && !cur.repeat && next.rotation === 0) next.rotation = REPEAT_ROTATION;
+        next.repeat = p.repeat;
+      }
+      const same = (Object.keys(next) as (keyof Watermark)[]).every((k) => next[k] === cur[k]);
+      return same ? doc : { ...doc, watermark: next };
     }
     case 'newCollage':
       // Start again: one empty cell; the canvas shape and style are kept for the next collage.

@@ -8,6 +8,7 @@ import { PreviewDialog } from './components/PreviewDialog';
 import { Sheet } from './components/Sheet';
 import { StylePanel } from './components/StylePanel';
 import { Toasts } from './components/Toasts';
+import { WatermarkPanel } from './components/WatermarkPanel';
 import { TopBar } from './components/TopBar';
 import { docReducer, hasWork, initialDoc } from './state/docReducer';
 import { releaseUnreferenced } from './state/imageStore';
@@ -17,7 +18,7 @@ import styles from './App.module.css';
 
 const firstDoc = initialDoc();
 
-const TITLES: Record<PanelName, string> = { layout: 'Layout', style: 'Style', export: 'Export' };
+const TITLES: Record<PanelName, string> = { layout: 'Layout', style: 'Style', watermark: 'Watermark', export: 'Export' };
 
 export default function App() {
   const history = useHistory(firstDoc, docReducer);
@@ -123,7 +124,8 @@ export default function App() {
           selectDivider={ui.selectDivider}
           pushToast={ui.pushToast}
           onPreview={openPreview}
-          showWatermark={panel === 'export' && ui.ui.exportSettings.watermark}
+          showCredit={panel === 'export' && ui.ui.exportSettings.watermark}
+          editWatermark={panel === 'watermark'}
           releaseUnused={() => releaseUnreferenced(referencedAssetsInHistory())}
         />
       </main>
@@ -134,6 +136,9 @@ export default function App() {
             {panel === 'layout' && <LayoutPanel doc={history.doc} commit={history.commit} undo={history.undo} pushToast={ui.pushToast} />}
             {panel === 'style' && (
               <StylePanel doc={history.doc} commit={history.commit} preview={history.preview} endGesture={history.endGesture} />
+            )}
+            {panel === 'watermark' && (
+              <WatermarkPanel doc={history.doc} commit={history.commit} preview={history.preview} endGesture={history.endGesture} />
             )}
             {panel === 'export' && (
               <ExportPanel doc={history.doc} settings={ui.ui.exportSettings} onChange={ui.setExportSettings} pushToast={ui.pushToast} />

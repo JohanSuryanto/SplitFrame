@@ -1,14 +1,14 @@
 import type { ReactNode } from 'react';
-import { DrawIcon, LayoutIcon, StyleIcon } from './icons';
+import { DrawIcon, LayoutIcon, StyleIcon, WatermarkIcon } from './icons';
 import { SHEET_IGNORE_ATTR } from './Sheet';
 import styles from './Dock.module.css';
 
-export type PanelName = 'layout' | 'style' | 'export';
+export type PanelName = 'layout' | 'style' | 'watermark' | 'export';
 
 interface DockProps {
   panel: PanelName | null;
   drawing: boolean;
-  onTogglePanel: (panel: 'layout' | 'style') => void;
+  onTogglePanel: (panel: 'layout' | 'style' | 'watermark') => void;
   onToggleDraw: () => void;
 }
 
@@ -36,6 +36,13 @@ export function Dock({ panel, drawing, onTogglePanel, onToggleDraw }: DockProps)
       <Item label="Layout" icon={<LayoutIcon />} active={panel === 'layout'} controls="layout-sheet" onClick={() => onTogglePanel('layout')} />
       <Item label="Draw" icon={<DrawIcon />} active={drawing} toggle onClick={onToggleDraw} />
       <Item label="Style" icon={<StyleIcon />} active={panel === 'style'} controls="style-sheet" onClick={() => onTogglePanel('style')} />
+      <Item
+        label="Watermark"
+        icon={<WatermarkIcon />}
+        active={panel === 'watermark'}
+        controls="watermark-sheet"
+        onClick={() => onTogglePanel('watermark')}
+      />
     </nav>
   );
 }

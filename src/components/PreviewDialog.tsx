@@ -98,7 +98,7 @@ export function PreviewDialog({ doc, exportSettings, onExportSettingsChange, onC
             <span className={styles.track} aria-hidden="true">
               <span className={styles.thumb} />
             </span>
-            Watermark
+            SplitFrame credit
           </button>
           <button type="button" className={styles.secondary} onClick={onClose}>
             Close

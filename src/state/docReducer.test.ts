@@ -1,5 +1,5 @@
 import { cellsInReadingOrder } from '../model/layout';
-import type { LayoutNode } from '../model/types';
+import type { LayoutNode, Watermark } from '../model/types';
 import { docReducer, hasWork, initialDoc } from './docReducer';
 
 const collectIds = (t: LayoutNode) => cellsInReadingOrder(t).map((c) => c.id);
@@ -64,5 +64,60 @@ describe('setImage framing (feature 004, T004)', () => {
   it('uses the default fill without a framing', () => {
     const d = initialDoc();
     expect(framingOf(docReducer(d, { type: 'setImage', cellId: d.layout.id, assetId: 'a' }))).toEqual({ zoom: 1, focusX: 0.5, focusY: 0.5 });
+  });
+});
+
+describe('setWatermark (feature 005, T004)', () => {
+  const set = (patch: Partial<Watermark>, doc = initialDoc()) => docReducer(doc, { type: 'setWatermark', patch });
+
+  it('cuts text to 100 characters', () => {
+    expect(set({ text: 'x'.repeat(150) }).watermark.text).toHaveLength(100);
+  });
+
+  it('clamps opacity, size and position', () => {
+    expect(set({ opacity: 0 }).watermark.opacity).toBe(0.1);
+    expect(set({ opacity: 2 }).watermark.opacity).toBe(1);
+    expect(set({ size: 0.5 }).watermark.size).toBe(0.2);
+    expect(set({ size: 0 }).watermark.size).toBe(0.02);
+    expect(set({ x: -1 }).watermark.x).toBe(0);
+    expect(set({ y: 3 }).watermark.y).toBe(1);
+  });
+
+  it('clamps rotation and snaps near 0', () => {
+    expect(set({ rotation: 120 }).watermark.rotation).toBe(90);
+    expect(set({ rotation: -2 }).watermark.rotation).toBe(0);
+    expect(set({ rotation: 2.9 }).watermark.rotation).toBe(0);
+    expect(set({ rotation: 4 }).watermark.rotation).toBe(4);
+  });
+
+  it('accepts only #RRGGBB colors, uppercased', () => {
+    expect(set({ color: '#ff0000' }).watermark.color).toBe('#FF0000');
+    expect(set({ color: 'red' }).watermark.color).toBe('#FFFFFF');
+    expect(set({ color: '#fff' }).watermark.color).toBe('#FFFFFF');
+  });
+
+  it('returns the same doc when nothing changes', () => {
+    const doc = initialDoc();
+    expect(set({ opacity: 0.5, x: 0.5 }, doc)).toBe(doc);
+    expect(set({ color: 'red' }, doc)).toBe(doc);
+  });
+
+  it('tilts to −30° when Repeat turns on at 0°, and keeps other angles', () => {
+    expect(set({ repeat: true }).watermark.rotation).toBe(-30);
+    const tilted = set({ rotation: 15 });
+    expect(set({ repeat: true }, tilted).watermark.rotation).toBe(15);
+  });
+
+  it('keeps rotation and position when Repeat turns off', () => {
+    const on = set({ repeat: true, x: 0.2, y: 0.8 });
+    const off = set({ repeat: false }, on);
+    expect(off.watermark).toMatchObject({ repeat: false, rotation: -30, x: 0.2, y: 0.8 });
+  });
+
+  it('is kept by newCollage', () => {
+    let doc = initialDoc();
+    doc = docReducer(doc, { type: 'setImage', cellId: doc.layout.id, assetId: 'a' });
+    doc = set({ text: 'For Bank X only', color: '#E53935' }, doc);
+    expect(docReducer(doc, { type: 'newCollage' }).watermark).toBe(doc.watermark);
   });
 });

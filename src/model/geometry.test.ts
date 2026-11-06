@@ -1,5 +1,5 @@
 import { layoutPixels, minSizeNorm, styleLimits, styleScale } from './geometry';
-import { DEFAULT_STYLE, type Doc, type LayoutNode, type Style } from './types';
+import { DEFAULT_STYLE, DEFAULT_WATERMARK, type Doc, type LayoutNode, type Style } from './types';
 
 const twoCols: LayoutNode = {
   type: 'split',
@@ -15,6 +15,7 @@ function doc(width: number, height: number, style: Partial<Style> = {}, layout: 
     canvas: { preset: 'custom', width, height },
     layout,
     style: { ...DEFAULT_STYLE, ...style },
+    watermark: DEFAULT_WATERMARK,
   };
 }
 

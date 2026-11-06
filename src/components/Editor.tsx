@@ -17,7 +17,7 @@ import { SamplePicker } from './SamplePicker';
 import { Divider, RemoveHandle } from './Divider';
 import { LineLayer } from './LineLayer';
 import { StrokeOverlay } from './StrokeOverlay';
-import { WatermarkLayer } from './WatermarkLayer';
+import { MarkLayer } from './MarkLayer';
 import styles from './Editor.module.css';
 
 const MARGIN = 16;
@@ -65,8 +65,10 @@ interface EditorProps {
   pushToast: (message: string, action?: { label: string; run: () => void }) => void;
   /** Opens the Preview (offered once an upload fills the last empty cell, FR-044). */
   onPreview: () => void;
-  /** Draw the export watermark on the canvas: only while the Export panel is open and it is on (FR-215). */
-  showWatermark: boolean;
+  /** Draw the SplitFrame credit on the canvas: only while the Export panel is open and it is on (003 FR-215). */
+  showCredit: boolean;
+  /** The Watermark panel is open: the user's watermark can be dragged (feature 005). */
+  editWatermark: boolean;
   /** Frees photos no undo step refers to (a photo cancelled in the Adjust popup). */
   releaseUnused: () => void;
 }
@@ -517,7 +519,17 @@ export function Editor(props: EditorProps) {
           onRemovePath={removeLine}
           focusedCellId={focusedCellId}
         />
-        {props.showWatermark && <WatermarkLayer canvas={doc.canvas} size={previewSize} />}
+        <MarkLayer
+          canvas={doc.canvas}
+          size={previewSize}
+          mark={doc.watermark}
+          showCredit={props.showCredit}
+          interactive={props.editWatermark && doc.watermark.text.trim() !== ''}
+          commit={commit}
+          preview={props.preview}
+          endGesture={props.endGesture}
+          cancelGesture={props.cancelGesture}
+        />
         {straightLines.map((d) => (
           <Divider
             key={d.splitId}

@@ -72,7 +72,7 @@ export function ExportPanel({ doc, settings, onChange, pushToast }: ExportPanelP
           className={styles.switchRow}
           onClick={() => onChange({ watermark: !settings.watermark })}
         >
-          <span>Watermark</span>
+          <span>SplitFrame credit</span>
           <span className={styles.switchTrack} aria-hidden="true">
             <span className={styles.switchThumb} />
           </span>

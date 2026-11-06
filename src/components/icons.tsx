@@ -48,6 +48,13 @@ export const StyleIcon = () => (
   </Icon>
 );
 
+export const WatermarkIcon = () => (
+  <Icon>
+    <path d="M6 5h8M10 5v7" />
+    <path d="M3 17l14-4" />
+  </Icon>
+);
+
 export const UndoIcon = () => (
   <Icon>
     <path d="M7 5 3 9l4 4" />
